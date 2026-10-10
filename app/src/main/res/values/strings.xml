@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Assistant</string>
+    <string name="a11y_description">Menampilkan bubble Assistant untuk membantu memahami soal latihan. Layar hanya dibaca saat bubble diketuk.</string>
+</resources>

@@ -1,0 +1,91 @@
+<resources>
+    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="colorPrimary">#5B5FEF</item>
+        <item name="colorPrimaryDark">#4038C9</item>
+        <item name="colorAccent">#5B5FEF</item>
+        <item name="colorControlActivated">#5B5FEF</item>
+        <item name="android:windowBackground">#F6F8FD</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+    </style>
+
+    <style name="Card">
+        <item name="android:orientation">vertical</item>
+        <item name="android:background">@drawable/card_ui</item>
+        <item name="android:padding">16dp</item>
+        <item name="android:elevation">2dp</item>
+    </style>
+
+    <style name="SectionTitle">
+        <item name="android:textColor">#171B35</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+    <style name="SectionSub">
+        <item name="android:textColor">#6B6F85</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <style name="Btn" parent="Widget.AppCompat.Button">
+        <item name="android:textAllCaps">false</item>
+        <item name="android:stateListAnimator">@null</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:minHeight">48dp</item>
+    </style>
+
+    <style name="Btn.Primary">
+        <item name="android:background">@drawable/btn_primary</item>
+        <item name="android:textColor">#FFFFFF</item>
+    </style>
+
+    <style name="Btn.Secondary">
+        <item name="android:background">@drawable/btn_secondary</item>
+        <item name="android:textColor">#4640CF</item>
+    </style>
+
+    <style name="Btn.Danger">
+        <item name="android:background">@drawable/btn_danger</item>
+        <item name="android:textColor">#D63031</item>
+    </style>
+
+    <style name="Input" parent="Widget.AppCompat.EditText">
+        <item name="android:background">@drawable/input_bg</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#171B35</item>
+        <item name="android:textColorHint">#9A9DB2</item>
+    </style>
+
+    <!-- ===== Popup kaca (liquid glass) ===== -->
+    <style name="GlassDialogAnim" parent="@android:style/Animation.Dialog">
+        <item name="android:windowEnterAnimation">@anim/glass_enter</item>
+        <item name="android:windowExitAnimation">@anim/glass_exit</item>
+    </style>
+
+    <style name="GlassButton" parent="Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:background">@drawable/glass_btn</item>
+        <item name="android:textColor">#4A3DB8</item>
+        <item name="android:textAllCaps">false</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:minWidth">72dp</item>
+        <item name="android:minHeight">44dp</item>
+        <item name="android:stateListAnimator">@null</item>
+    </style>
+
+    <style name="GlassDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@drawable/glass_bg_solid</item>
+        <item name="android:windowAnimationStyle">@style/GlassDialogAnim</item>
+        <item name="android:backgroundDimEnabled">true</item>
+        <item name="android:backgroundDimAmount">0.22</item>
+        <item name="android:textColorPrimary">#1B1B2F</item>
+        <item name="android:textColorSecondary">#4A4D63</item>
+        <item name="colorAccent">#4640CF</item>
+        <item name="buttonBarButtonStyle">@style/GlassButton</item>
+        <item name="buttonBarPositiveButtonStyle">@style/GlassButton</item>
+        <item name="buttonBarNegativeButtonStyle">@style/GlassButton</item>
+        <item name="buttonBarNeutralButtonStyle">@style/GlassButton</item>
+    </style>
+</resources>

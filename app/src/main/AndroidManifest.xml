@@ -1,0 +1,147 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_icon0"
+        android:roundIcon="@mipmap/ic_icon0"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="false">
+
+        <!-- Tanpa intent-filter LAUNCHER: ikon + nama di launcher diatur oleh activity-alias di bawah.
+             Hanya satu alias yang aktif; app mengganti alias aktif saat user memilih nama/ikon baru. -->
+        <activity
+            android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="true" />
+
+        <!-- Sesi Latihan (ulangan/tes). Bisa disematkan (screen pinning) di mode ketat. -->
+        <activity
+            android:name=".TestActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden|smallestScreenSize|screenLayout"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity-alias
+            android:name=".Launcher_n0_c0"
+            android:enabled="true"
+            android:exported="true"
+            android:icon="@mipmap/ic_icon0"
+            android:roundIcon="@mipmap/ic_icon0"
+            android:label="Assistant"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".Launcher_n0_c1"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_icon1"
+            android:roundIcon="@mipmap/ic_icon1"
+            android:label="Assistant"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".Launcher_n0_c2"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_icon2"
+            android:roundIcon="@mipmap/ic_icon2"
+            android:label="Assistant"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".Launcher_n0_c3"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_icon3"
+            android:roundIcon="@mipmap/ic_icon3"
+            android:label="Assistant"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".Launcher_n0_c4"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_icon4"
+            android:roundIcon="@mipmap/ic_icon4"
+            android:label="Assistant"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name=".Launcher_n0_c5"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@mipmap/ic_icon5"
+            android:roundIcon="@mipmap/ic_icon5"
+            android:label="Assistant"
+            android:targetActivity=".MainActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity-alias>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        <service
+            android:name=".OverlayService"
+            android:exported="false"
+            android:label="@string/app_name"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+    </application>
+</manifest>

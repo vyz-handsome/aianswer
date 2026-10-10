@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kaca buram untuk perangkat tanpa blur latar: hampir pekat supaya teks tetap terbaca. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="16dp"
+    android:insetTop="24dp"
+    android:insetRight="16dp"
+    android:insetBottom="24dp">
+    <layer-list>
+        <item>
+            <shape android:shape="rectangle">
+                <gradient
+                    android:angle="315"
+                    android:endColor="#F2EAF6FF"
+                    android:startColor="#F5F3EEFF" />
+                <corners android:radius="28dp" />
+                <stroke
+                    android:width="1.2dp"
+                    android:color="#D9FFFFFF" />
+            </shape>
+        </item>
+        <!-- kilau tipis di bagian atas -->
+        <item android:height="64dp" android:gravity="top">
+            <shape android:shape="rectangle">
+                <gradient
+                    android:angle="270"
+                    android:endColor="#00FFFFFF"
+                    android:startColor="#80FFFFFF" />
+                <corners
+                    android:topLeftRadius="28dp"
+                    android:topRightRadius="28dp" />
+            </shape>
+        </item>
+        <!-- bayangan halus di dasar -->
+        <item android:height="48dp" android:gravity="bottom">
+            <shape android:shape="rectangle">
+                <gradient
+                    android:angle="270"
+                    android:endColor="#146C5CE7"
+                    android:startColor="#00FFFFFF" />
+                <corners
+                    android:bottomLeftRadius="28dp"
+                    android:bottomRightRadius="28dp" />
+            </shape>
+        </item>
+    </layer-list>
+</inset>

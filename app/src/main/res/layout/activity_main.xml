@@ -1,0 +1,1314 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F6F8FD"
+    android:orientation="vertical">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
+
+        <!-- ===================== BERANDA ===================== -->
+        <ScrollView
+            android:id="@+id/homeScroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Header -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/header_bg"
+                    android:elevation="4dp"
+                    android:orientation="vertical"
+                    android:padding="20dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/headerIcon"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:scaleType="fitXY" />
+
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="14dp"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+
+                            <TextView
+                                android:id="@+id/headerName"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="#FFFFFF"
+                                android:textSize="21sp"
+                                android:textStyle="bold" />
+
+                            <TextView
+                                android:id="@+id/headerSub"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="2dp"
+                                android:textColor="#E6E3FF"
+                                android:textSize="13sp" />
+                        </LinearLayout>
+                    </LinearLayout>
+
+                    <TextView
+                        android:id="@+id/status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:background="@drawable/chip_off"
+                        android:paddingStart="14dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="14dp"
+                        android:paddingBottom="6dp"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Kontrol AI -->
+                <LinearLayout
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Kontrol AI" />
+
+                    <TextView
+                        android:id="@+id/modelInfo"
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp" />
+
+                    <Button
+                        android:id="@+id/btnConfig"
+                        style="@style/Btn.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Pengaturan AI" />
+
+                    <Button
+                        android:id="@+id/btnTest"
+                        style="@style/Btn.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Tes koneksi" />
+
+                    <TextView
+                        android:id="@+id/testResult"
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:visibility="gone" />
+
+                    <Button
+                        android:id="@+id/btnStart"
+                        style="@style/Btn.Primary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Mulai AI" />
+
+                    <Button
+                        android:id="@+id/btnStop"
+                        style="@style/Btn.Danger"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Hentikan AI" />
+                </LinearLayout>
+
+                <!-- Layanan -->
+                <LinearLayout
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Aksesibilitas" />
+
+                    <TextView
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Aktifkan Assistant di pengaturan Aksesibilitas. Jika diblokir, buka Info aplikasi → menu ⋮ → Izinkan setelan terbatas." />
+
+                    <Button
+                        android:id="@+id/btnAccessibility"
+                        style="@style/Btn.Primary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Aktifkan aksesibilitas" />
+
+                    <Button
+                        android:id="@+id/btnAppInfo"
+                        style="@style/Btn.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Info aplikasi" />
+                </LinearLayout>
+
+                <!-- Cara pakai -->
+                <LinearLayout
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp">
+
+                    <TextView
+                        android:id="@+id/helpToggle"
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp"
+                        android:text="Panduan singkat  ▸" />
+
+                    <TextView
+                        android:id="@+id/helpBody"
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Aktifkan aksesibilitas dan tes koneksi. Tekan Mulai AI untuk membuka bubble. Gunakan tab Latihan untuk berlatih dan Riwayat untuk mengecek jawaban. Layar dan chat dapat dikirim ke penyedia AI; hindari data pribadi. Pakai untuk belajar, bukan ujian yang dinilai."
+                        android:visibility="gone" />
+                </LinearLayout>
+
+                <!-- Log -->
+                <LinearLayout
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Log aktivitas" />
+
+                    <TextView
+                        android:id="@+id/logView"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:fontFamily="monospace"
+                        android:textColor="#3B3F55"
+                        android:textIsSelectable="true"
+                        android:textSize="11sp" />
+
+                    <Button
+                        android:id="@+id/btnRefreshLog"
+                        style="@style/Btn.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Perbarui log" />
+
+                    <Button
+                        android:id="@+id/btnCopyLog"
+                        style="@style/Btn.Secondary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Salin log" />
+                </LinearLayout>
+
+                <Space
+                    android:layout_width="match_parent"
+                    android:layout_height="12dp" />
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ===================== TANYA AI ===================== -->
+        <LinearLayout
+            android:id="@+id/chatPage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:baselineAligned="false"
+        android:orientation="horizontal">
+
+                <TextView
+                    style="@style/SectionTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="Tanya AI" />
+
+                <TextView
+                    android:id="@+id/btnHelp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:background="@drawable/tab_selected"
+                    android:paddingStart="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="6dp"
+                    android:text="?"
+                    android:textColor="#4640CF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/btnNewChat"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/tab_selected"
+                    android:paddingStart="12dp"
+                    android:paddingTop="6dp"
+                    android:paddingEnd="12dp"
+                    android:paddingBottom="6dp"
+                    android:text="Chat baru"
+                    android:textColor="#4640CF"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="8dp"
+                android:layout_weight="1">
+
+                <ScrollView
+                    android:id="@+id/chatScroll"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:id="@+id/chatList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:paddingBottom="8dp" />
+                </ScrollView>
+
+                <TextView
+                    android:id="@+id/chatEmpty"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:padding="24dp"
+                    android:text="Tanya materi pelajaran atau kirim foto soal.\n\nPerintah cepat: /a jawab · /e jelaskan · /r rangkum · /q kuis.\n\nContoh: /e Jelaskan fotosintesis."
+                    android:textColor="#9A9DB2"
+                    android:textSize="14sp" />
+            </FrameLayout>
+
+            <!-- Gambar yang akan dikirim -->
+            <LinearLayout
+                android:id="@+id/attachRow"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:background="@drawable/card_ui"
+                android:gravity="center_vertical"
+                android:baselineAligned="false"
+        android:orientation="horizontal"
+                android:padding="8dp"
+                android:visibility="gone">
+
+                <ImageView
+                    android:id="@+id/attachThumb"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="centerCrop" />
+
+                <TextView
+                    style="@style/SectionSub"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:layout_weight="1"
+                    android:text="Foto siap dikirim" />
+
+                <TextView
+                    android:id="@+id/btnRemoveAttach"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:padding="10dp"
+                    android:text="✕"
+                    android:textColor="#555555"
+                    android:textSize="16sp" />
+            </LinearLayout>
+
+            <HorizontalScrollView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:scrollbars="none">
+
+                <LinearLayout
+                    android:id="@+id/cmdRow"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal" />
+            </HorizontalScrollView>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:gravity="bottom"
+                android:baselineAligned="false"
+        android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/btnAttach"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:background="@drawable/tab_selected"
+                    android:gravity="center"
+                    android:text="+"
+                    android:textSize="22sp"
+                    android:contentDescription="Tambah foto" />
+
+                <EditText
+                    android:id="@+id/chatInput"
+                    style="@style/Input"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_weight="1"
+                    android:hint="Tulis atau ucapkan pertanyaan…"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:maxLines="4" />
+
+                <TextView
+                    android:id="@+id/btnVoice"
+                    android:layout_width="44dp"
+                    android:layout_height="48dp"
+                    android:layout_marginStart="6dp"
+                    android:background="@drawable/tab_selected"
+                    android:contentDescription="Tanya AI dengan suara"
+                    android:gravity="center"
+                    android:text="🎤"
+                    android:textSize="20sp" />
+
+                <Button
+                    android:id="@+id/btnSend"
+                    style="@style/Btn.Primary"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:minWidth="0dp"
+                    android:paddingStart="18dp"
+                    android:paddingEnd="18dp"
+                    android:text="Kirim" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- ===================== LATIHAN ===================== -->
+        <ScrollView
+            android:id="@+id/latihanPage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:scrollbars="none"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/SectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Latihan" />
+
+                <TextView
+                    style="@style/SectionSub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:text="Latihan soal sesuai kelas dan tingkat kesulitan." />
+
+                <LinearLayout
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="1. Kelas (kelas sekarang)"
+                    android:textColor="#1B1B2F"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <Spinner
+                    android:id="@+id/spKelas"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/input_bg"
+                    android:minHeight="48dp"
+                    android:padding="6dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="2. Mapel"
+                    android:textColor="#1B1B2F"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <Spinner
+                    android:id="@+id/spMapel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/input_bg"
+                    android:minHeight="48dp"
+                    android:padding="6dp" />
+
+                    <EditText
+                        android:id="@+id/etMapelLain"
+                        style="@style/Input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="Mapel lain (opsional, ketik sendiri)"
+                        android:inputType="textCapWords"
+                        android:singleLine="true" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="3. Kesulitan"
+                    android:textColor="#1B1B2F"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <Spinner
+                    android:id="@+id/spLevel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/input_bg"
+                    android:minHeight="48dp"
+                    android:padding="6dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="4. Jumlah soal"
+                    android:textColor="#1B1B2F"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+                        <EditText
+                            android:id="@+id/etPg"
+                            style="@style/Input"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="4dp"
+                            android:layout_weight="1"
+                            android:hint="Pilihan ganda"
+                            android:inputType="number"
+                            android:maxLength="2"
+                            android:text="10" />
+
+                        <EditText
+                            android:id="@+id/etEssay"
+                            style="@style/Input"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="4dp"
+                            android:layout_weight="1"
+                            android:hint="Essay"
+                            android:inputType="number"
+                            android:maxLength="2"
+                            android:text="0" />
+                    </LinearLayout>
+
+                    <TextView
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Isi 0 kalau tidak mau salah satunya (maks. 40 pilihan ganda, 15 essay)." />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="5. Waktu (menit)"
+                    android:textColor="#1B1B2F"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                    <EditText
+                        android:id="@+id/etMinutes"
+                        style="@style/Input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:hint="Menit"
+                        android:inputType="number"
+                        android:maxLength="3"
+                        android:text="0" />
+
+                    <TextView
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="0 = tanpa waktu. 1 = 1 menit, 60 = 1 jam." />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="6. Mode ujian"
+                    android:textColor="#1B1B2F"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                    <RadioGroup
+                        android:id="@+id/rgTestMode"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+
+                        <RadioButton
+                            android:id="@+id/rbNormal"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:checked="true"
+                            android:text="Normal: petunjuk dan pembahasan tersedia."
+                            android:textColor="#1B1B2F"
+                            android:textSize="14sp" />
+
+                        <RadioButton
+                            android:id="@+id/rbPinned"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Disematkan (ketat): layar dikunci, pelanggaran dihitung"
+                            android:textColor="#1B1B2F"
+                            android:textSize="14sp" />
+                    </RadioGroup>
+
+                    <LinearLayout
+                        android:id="@+id/pinOptions"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:visibility="gone">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp"
+                    android:text="Batas pelanggaran"
+                    android:textColor="#1B1B2F"
+                    android:textSize="13sp"
+                    android:textStyle="bold" />
+
+                <Spinner
+                    android:id="@+id/spLimit"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:background="@drawable/input_bg"
+                    android:minHeight="48dp"
+                    android:padding="6dp" />
+
+                        <TextView
+                            style="@style/SectionSub"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="6dp"
+                            android:text="Membuka jendela lain atau keluar dari layar tes dihitung pelanggaran. Melewati batas, atau keluar paksa dari penyematan, langsung dikumpulkan otomatis. Tanpa tombol penjelasan." />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnStartTest"
+                        style="@style/Btn.Primary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="Mulai latihan" />
+                </LinearLayout>
+
+                <TextView
+                    style="@style/SectionSub"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="Selama latihan, bubble AI dan Tanya AI dikunci di kedua mode." />
+            </LinearLayout>
+        </ScrollView>
+
+        <!-- ===================== RIWAYAT & STATISTIK ===================== -->
+        <LinearLayout
+            android:id="@+id/historyPage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:visibility="gone">
+
+            <TextView
+                style="@style/SectionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Riwayat &amp; Statistik" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:baselineAligned="false"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/segHistory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingStart="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="8dp"
+                    android:text="Riwayat"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/segStats"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="6dp"
+                    android:paddingStart="16dp"
+                    android:paddingTop="8dp"
+                    android:paddingEnd="16dp"
+                    android:paddingBottom="8dp"
+                    android:text="Statistik"
+                    android:textSize="13sp" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/historyPane"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <EditText
+                    android:id="@+id/historySearch"
+                    style="@style/Input"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Cari soal atau jawaban…"
+                    android:inputType="text"
+                    android:maxLines="1" />
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:baselineAligned="false"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/filterAll"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:paddingStart="14dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="14dp"
+                        android:paddingBottom="6dp"
+                        android:text="Semua"
+                        android:textSize="12.5sp" />
+
+                    <TextView
+                        android:id="@+id/filterDoubt"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:paddingStart="14dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="14dp"
+                        android:paddingBottom="6dp"
+                        android:text="Ragu"
+                        android:textSize="12.5sp" />
+
+                    <TextView
+                        android:id="@+id/filterWrong"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="6dp"
+                        android:paddingStart="14dp"
+                        android:paddingTop="6dp"
+                        android:paddingEnd="14dp"
+                        android:paddingBottom="6dp"
+                        android:text="Salah ✘"
+                        android:textSize="12.5sp" />
+                </LinearLayout>
+
+                <ScrollView
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_marginTop="8dp"
+                    android:layout_weight="1"
+                    android:scrollbars="none">
+
+                    <LinearLayout
+                        android:id="@+id/historyList"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical" />
+                </ScrollView>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/btnExportHistory"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="Ekspor"
+                        android:textColor="#4640CF"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btnQuizHistory"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="Kuis ulang"
+                        android:textColor="#4640CF"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/btnClearHistory"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:padding="10dp"
+                        android:text="Hapus semua"
+                        android:textColor="#D63031"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <ScrollView
+                android:id="@+id/statsPane"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginTop="10dp"
+                android:layout_weight="1"
+                android:scrollbars="none"
+                android:visibility="gone">
+
+                <LinearLayout
+                    android:id="@+id/statsList"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical" />
+            </ScrollView>
+        </LinearLayout>
+
+        <!-- ===================== PENGATURAN ===================== -->
+        <ScrollView
+            android:id="@+id/settingsPage"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            android:scrollbars="none"
+            android:visibility="gone">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    style="@style/SectionTitle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Pengaturan" />
+
+                <LinearLayout
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Akun &amp; keamanan" />
+
+                    <TextView
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Keluar akan mengunci aplikasi. Masukkan Password Code lagi untuk melanjutkan." />
+
+                    <Button
+                        android:id="@+id/btnLogout"
+                        style="@style/Btn.Danger"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Log Out / Kunci aplikasi" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Model AI" />
+
+                    <TextView
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Gemini siap dipakai, atau pilih model lain." />
+
+                    <Spinner
+                        android:id="@+id/cfgModel"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:background="@drawable/input_bg"
+                        android:minHeight="48dp"
+                        android:padding="6dp" />
+
+                    <TextView
+                        android:id="@+id/cfgKeyInfo"
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp" />
+
+                    <EditText
+                        android:id="@+id/cfgKey"
+                        style="@style/Input"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:hint="API key sendiri (opsional)"
+                        android:inputType="textPassword" />
+
+                    <Button
+                        android:id="@+id/btnSaveModel"
+                        style="@style/Btn.Primary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Simpan pengaturan" />
+
+                    <CheckBox
+                        android:id="@+id/cfgAccurate"
+                        android:layout_width="match_parent"
+                        android:background="@drawable/glass_option_ripple"
+                        android:buttonTint="@color/glass_checkbox_tint"
+                        android:layout_height="wrap_content"
+                        android:minHeight="50dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:layout_marginTop="12dp"
+                        android:text="Mode akurat (lebih teliti, sedikit lebih lambat)"
+                        android:textColor="#1B1B2F"
+                        android:textSize="14sp" />
+
+                    <CheckBox
+                        android:id="@+id/cfgFallback"
+                        android:layout_width="match_parent"
+                        android:background="@drawable/glass_option_ripple"
+                        android:buttonTint="@color/glass_checkbox_tint"
+                        android:layout_height="wrap_content"
+                        android:minHeight="50dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:layout_marginTop="8dp"
+                        android:text="Cadangan otomatis saat model error atau kena batas"
+                        android:textColor="#1B1B2F"
+                        android:textSize="14sp" />
+
+                    <CheckBox
+                        android:id="@+id/cfgEscalate"
+                        android:layout_width="match_parent"
+                        android:background="@drawable/glass_option_ripple"
+                        android:buttonTint="@color/glass_checkbox_tint"
+                        android:layout_height="wrap_content"
+                        android:minHeight="50dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:layout_marginTop="8dp"
+                        android:text="Ulangi dengan mode akurat jika jawaban ragu"
+                        android:textColor="#1B1B2F"
+                        android:textSize="14sp" />
+
+                    <CheckBox
+                        android:id="@+id/cfgCache"
+                        android:layout_width="match_parent"
+                        android:background="@drawable/glass_option_ripple"
+                        android:buttonTint="@color/glass_checkbox_tint"
+                        android:layout_height="wrap_content"
+                        android:minHeight="50dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:layout_marginTop="8dp"
+                        android:text="Gunakan jawaban tersimpan saat soal yang sama muncul"
+                        android:textColor="#1B1B2F"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Tampilan" />
+
+                    <TextView
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:text="Gaya menu bawah" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:id="@+id/navStyleRow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+                </LinearLayout>
+
+                <LinearLayout
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Tampilan bubble" />
+
+                    <com.assistant.ai.BubbleArtworkTextView
+                        android:id="@+id/bubblePreview"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_horizontal"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center"
+                        android:textColor="#FFFFFF" />
+
+                    <TextView
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Warna" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:id="@+id/bubbleThemeRow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+
+                    <TextView
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Bentuk" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:id="@+id/bubbleShapeRow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+
+                    <TextView
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Ikon saat diam" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:id="@+id/bubbleIconRow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal" />
+                    </HorizontalScrollView>
+
+                    <TextView
+                        android:id="@+id/cfgSizeLabel"
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp" />
+
+                    <SeekBar
+                        android:id="@+id/cfgSize"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="100" />
+
+                    <TextView
+                        android:id="@+id/cfgAlphaLabel"
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp" />
+
+                    <SeekBar
+                        android:id="@+id/cfgAlpha"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:max="70" />
+
+                    <CheckBox
+                        android:id="@+id/cfgSnap"
+                        android:layout_width="match_parent"
+                        android:background="@drawable/glass_option_ripple"
+                        android:buttonTint="@color/glass_checkbox_tint"
+                        android:layout_height="wrap_content"
+                        android:minHeight="50dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:layout_marginTop="10dp"
+                        android:text="Tempel ke tepi layar"
+                        android:textColor="#1B1B2F"
+                        android:textSize="14sp" />
+
+                    <CheckBox
+                        android:id="@+id/cfgAutoMin"
+                        android:layout_width="match_parent"
+                        android:background="@drawable/glass_option_ripple"
+                        android:buttonTint="@color/glass_checkbox_tint"
+                        android:layout_height="wrap_content"
+                        android:minHeight="50dp"
+                        android:paddingStart="12dp"
+                        android:paddingEnd="12dp"
+                        android:paddingTop="7dp"
+                        android:paddingBottom="7dp"
+                        android:layout_marginTop="8dp"
+                        android:text="Sembunyikan sebagian bubble setelah 5 detik tidak disentuh"
+                        android:textColor="#1B1B2F"
+                        android:textSize="14sp" />
+                </LinearLayout>
+
+                <!-- Personalisasi -->
+                <LinearLayout
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="14dp">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Ikon aplikasi" />
+
+                    <TextView
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Assistant memakai logo lampu. Pilih warna ikon lalu terapkan." />
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:gravity="center_vertical"
+                        android:baselineAligned="false"
+        android:orientation="horizontal">
+
+                        <ImageView
+                            android:id="@+id/namePreview"
+                            android:layout_width="56dp"
+                            android:layout_height="56dp"
+                            android:scaleType="fitXY" />
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="12dp"
+                            android:layout_weight="1"
+                            android:text="Assistant"
+                            android:textColor="#171B35"
+                            android:textSize="18sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <TextView
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Warna ikon" />
+
+                    <HorizontalScrollView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="6dp"
+                        android:scrollbars="none">
+
+                        <LinearLayout
+                            android:id="@+id/iconRow"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:baselineAligned="false"
+        android:orientation="horizontal" />
+                    </HorizontalScrollView>
+
+                    <Button
+                        android:id="@+id/btnApplyLauncher"
+                        style="@style/Btn.Primary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp"
+                        android:text="Terapkan ikon" />
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+    </FrameLayout>
+
+    <!-- ===================== MENU BAWAH ===================== -->
+    <LinearLayout
+        android:id="@+id/bottomBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.assistant.ai.NavBarView
+            android:id="@+id/navBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+</LinearLayout>
