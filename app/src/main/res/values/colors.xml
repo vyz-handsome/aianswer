@@ -9,5 +9,5 @@
     <color name="ok">#0B7A55</color>
     <color name="warn">#B45F06</color>
     <color name="danger">#C7303F</color>
-    <color name="window_bg">#EEF1FF</color>
+    <color name="window_bg">#FFFFFF</color>
 </resources>

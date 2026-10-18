@@ -37,41 +37,14 @@ import android.view.ViewTreeObserver
 /** Pemandangan aurora: dipakai untuk latar (tajam) dan untuk bitmap blur di belakang kaca. */
 object AuroraScene {
 
-    private class Orb(val fx: Float, val fy: Float, val fr: Float, val c1: Int, val c2: Int)
-
-    private val orbs = arrayOf(
-        Orb(0.10f, 0.07f, 0.26f, 0xFF9A8CFF.toInt(), 0xFF6C9BFF.toInt()),
-        Orb(0.98f, 0.22f, 0.24f, 0xFFFF9CC8.toInt(), 0xFFFFB48A.toInt()),
-        Orb(0.02f, 0.50f, 0.27f, 0xFF5ED8F2.toInt(), 0xFF6A9BFF.toInt()),
-        Orb(0.92f, 0.62f, 0.19f, 0xFFFFD36E.toInt(), 0xFFFF9E7A.toInt()),
-        Orb(0.30f, 0.94f, 0.30f, 0xFF6CE8C0.toInt(), 0xFF5BB9F5.toInt()),
-        Orb(0.82f, 0.94f, 0.14f, 0xFFC9A7FF.toInt(), 0xFF8E9BFF.toInt())
-    )
-
     private val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-    private val baseColors = intArrayOf(0xFFE6ECFF.toInt(), 0xFFF3EDFF.toInt(), 0xFFE4F3FF.toInt())
-    private val basePos = floatArrayOf(0f, 0.5f, 1f)
+    private val baseColors = intArrayOf(0xFFFFFFFF.toInt(), 0xFFF9FAFE.toInt(), 0xFFF2F4FA.toInt())
+    private val basePos = floatArrayOf(0f, 0.55f, 1f)
 
+    /** Latar putih bersih (gradasi sangat tipis ke abu kebiruan di bawah). Bola warna sudah dihilangkan. */
     fun draw(c: Canvas, w: Float, h: Float) {
-        paint.shader = LinearGradient(0f, 0f, w, h, baseColors, basePos, Shader.TileMode.CLAMP)
+        paint.shader = LinearGradient(0f, 0f, 0f, h, baseColors, basePos, Shader.TileMode.CLAMP)
         c.drawRect(0f, 0f, w, h, paint)
-        for (o in orbs) {
-            val cx = o.fx * w
-            val cy = o.fy * h
-            val r = o.fr * w
-            val rgb = o.c1 and 0x00FFFFFF
-            // Cahaya lembut di sekeliling bola.
-            paint.shader = RadialGradient(cx, cy, r * 1.9f, rgb or 0x55000000, rgb, Shader.TileMode.CLAMP)
-            c.drawCircle(cx, cy, r * 1.9f, paint)
-            // Badan bola.
-            paint.shader = LinearGradient(cx - r, cy - r, cx + r, cy + r, o.c1, o.c2, Shader.TileMode.CLAMP)
-            c.drawCircle(cx, cy, r, paint)
-            // Kilau di sisi kiri atas supaya terlihat seperti bola kaca.
-            paint.shader = RadialGradient(
-                cx - r * 0.35f, cy - r * 0.4f, r * 0.8f, 0x66FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP
-            )
-            c.drawCircle(cx, cy, r, paint)
-        }
         paint.shader = null
     }
 }

@@ -8,8 +8,8 @@ android {
         applicationId = "com.assistant.ai"
         minSdk = 26
         targetSdk = 36
-        versionCode = 24
-        versionName = "0.26.0"
+        versionCode = 25
+        versionName = "0.26.1"
     }
 }
 

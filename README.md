@@ -1,4 +1,8 @@
-# Assistant — v0.26.0
+# Assistant — v0.26.1
+
+## Perubahan v0.26.1
+- Latar aurora diganti putih bersih (bola warna dihapus). Kartu tetap kaca dengan rim, kilau, dan bayangan lembut.
+
 
 ## Perubahan v0.26.0 (rombak tampilan: liquid glass sungguhan)
 - **Latar aurora** (`AuroraBackground`): bola warna tajam di seluruh layar. Salinan blur-nya disimpan sebagai bitmap kecil.
