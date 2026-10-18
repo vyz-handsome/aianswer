@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Kaca bening: dipakai saat blur latar aktif (Android 12+), sehingga latar yang kabur terlihat menembus kartu. -->
+<inset xmlns:android="http://schemas.android.com/apk/res/android"
+    android:insetLeft="16dp"
+    android:insetTop="24dp"
+    android:insetRight="16dp"
+    android:insetBottom="24dp">
+    <layer-list>
+        <item>
+            <shape android:shape="rectangle">
+                <gradient
+                    android:angle="315"
+                    android:endColor="#9EEAF6FF"
+                    android:startColor="#A8F3EEFF" />
+                <corners android:radius="28dp" />
+                <stroke
+                    android:width="1.2dp"
+                    android:color="#CCFFFFFF" />
+            </shape>
+        </item>
+        <item android:height="64dp" android:gravity="top">
+            <shape android:shape="rectangle">
+                <gradient
+                    android:angle="270"
+                    android:endColor="#00FFFFFF"
+                    android:startColor="#70FFFFFF" />
+                <corners
+                    android:topLeftRadius="28dp"
+                    android:topRightRadius="28dp" />
+            </shape>
+        </item>
+        <item android:height="48dp" android:gravity="bottom">
+            <shape android:shape="rectangle">
+                <gradient
+                    android:angle="270"
+                    android:endColor="#1A6C5CE7"
+                    android:startColor="#00FFFFFF" />
+                <corners
+                    android:bottomLeftRadius="28dp"
+                    android:bottomRightRadius="28dp" />
+            </shape>
+        </item>
+    </layer-list>
+</inset>
