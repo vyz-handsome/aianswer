@@ -593,7 +593,7 @@ class NavBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         val t = gTop
         val b = gTop + gH
         val rad = gH / 2f
-        val accent = accentNow
+        val accent = Color.rgb(140, 146, 185)
         val tw = tabW()
         val cy = t + gH / 2f
         rect.set(l, t, r, b)
@@ -601,7 +601,7 @@ class NavBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         // 1) Bayangan lembut dan pendar warna di bawah lensa.
         blurPaint.reset()
         blurPaint.isAntiAlias = true
-        blurPaint.color = Color.argb(48, 40, 50, 110)
+        blurPaint.color = Color.argb(30, 30, 34, 60)
         blurPaint.maskFilter = BlurMaskFilter(16 * d, BlurMaskFilter.Blur.NORMAL)
         rect2.set(l + 4 * d, t + 9 * d, r - 4 * d, b + 9 * d)
         c.drawRoundRect(rect2, rad, rad, blurPaint)
@@ -624,14 +624,14 @@ class NavBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         val real = GlassBackdrop.draw(this, aurora, c)
         gradPaint.shader = LinearGradient(
             0f, t, 0f, b,
-            Color.argb(if (real) 118 else 218, 255, 255, 255),
-            Color.argb(if (real) 76 else 150, 236, 241, 255),
+            Color.argb(if (real) 240 else 218, 255, 255, 255),
+            Color.argb(if (real) 232 else 150, 250, 251, 255),
             Shader.TileMode.CLAMP
         )
         c.drawRect(rect, gradPaint)
         gradPaint.shader = null
         val shift = (xPos - width / 2f) * 0.10f
-        blob(c, xPos, t + gH * 0.55f, 78 * d, withAlpha(accent, if (real) 78 else 105))
+        blob(c, xPos, t + gH * 0.55f, 78 * d, withAlpha(accent, if (real) 0 else 105))
         if (!real) {
             blob(c, l + 0.16f * (r - l) + shift, t + gH * 0.30f, 90 * d, Color.argb(72, 110, 160, 255))
             blob(c, l + 0.84f * (r - l) + shift, t + gH * 0.70f, 90 * d, Color.argb(62, 255, 130, 210))
@@ -641,7 +641,7 @@ class NavBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         )
         c.drawRect(l, t, r, t + gH * 0.6f, gradPaint)
         gradPaint.shader = LinearGradient(
-            0f, b - 16 * d, 0f, b, Color.argb(0, 60, 80, 160), Color.argb(36, 60, 80, 160), Shader.TileMode.CLAMP
+            0f, b - 16 * d, 0f, b, Color.argb(0, 40, 44, 80), Color.argb(12, 40, 44, 80), Shader.TileMode.CLAMP
         )
         c.drawRect(l, b - 16 * d, r, b, gradPaint)
         gradPaint.shader = null
@@ -705,7 +705,7 @@ class NavBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         notchPath.addRoundRect(rect, lr, lr, Path.Direction.CW)
         c.save()
         c.clipPath(notchPath)
-        blob(c, xPos, bottom - 2 * d, lw * 0.6f, withAlpha(accent, 125))
+        blob(c, xPos, bottom - 2 * d, lw * 0.6f, withAlpha(accent, 40))
         blurPaint.color = Color.argb(175, 255, 255, 255)
         blurPaint.maskFilter = BlurMaskFilter(3 * d, BlurMaskFilter.Blur.NORMAL)
         c.save()
@@ -718,10 +718,10 @@ class NavBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet
 
         // Tepi lensa: sedikit pergeseran warna (cyan dan magenta) lalu rim putih yang terang di dua sudut.
         strokePaint.strokeWidth = 1.2f * d
-        strokePaint.color = Color.argb(48, 0, 210, 255)
+        strokePaint.color = Color.argb(0, 0, 210, 255)
         rect2.set(left - 0.8f * d, top, right - 0.8f * d, bottom)
         c.drawRoundRect(rect2, lr, lr, strokePaint)
-        strokePaint.color = Color.argb(48, 255, 70, 170)
+        strokePaint.color = Color.argb(0, 255, 70, 170)
         rect2.set(left + 0.8f * d, top, right + 0.8f * d, bottom)
         c.drawRoundRect(rect2, lr, lr, strokePaint)
         strokePaint.strokeWidth = 1.5f * d
@@ -743,7 +743,7 @@ class NavBarView @JvmOverloads constructor(context: Context, attrs: AttributeSet
         for (i in 0..4) {
             val near = (1f - abs(xPos - cx(i)) / (tw * 0.8f)).coerceIn(0f, 1f)
             val amount = near * near * (3f - 2f * near)
-            val col = mix(Color.rgb(74, 78, 107), darker(accents[i]), amount)
+            val col = mix(Color.rgb(112, 116, 140), Color.rgb(20, 24, 56), amount)
             var sx = 1f + 0.06f * amount
             var sy = sx
             if (i == selected && frac < 1f) {

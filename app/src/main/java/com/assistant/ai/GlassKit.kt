@@ -323,7 +323,7 @@ open class GlassDrawable(
         val glowH = minOf(h * 0.55f, 90f * density)
         glowShader = LinearGradient(0f, t, 0f, t + glowH, 0x66FFFFFF, 0x00FFFFFF, Shader.TileMode.CLAMP)
         val shadeH = minOf(h * 0.5f, 26f * density)
-        shadeShader = LinearGradient(0f, bo - shadeH, 0f, bo, 0x005A5FD0, 0x245A5FD0, Shader.TileMode.CLAMP)
+        shadeShader = LinearGradient(0f, bo - shadeH, 0f, bo, 0x005A5FD0, 0x0C5A5FD0, Shader.TileMode.CLAMP)
         rimShader = LinearGradient(
             l, t, r, bo,
             intArrayOf(0xF2FFFFFF.toInt(), 0x59FFFFFF, 0x40FFFFFF, 0xD9FFFFFF.toInt()),
@@ -340,13 +340,22 @@ open class GlassDrawable(
         c.save()
         c.clipOutPath(path)
         fill.shader = null
-        for (i in 1..6) {
-            val g = i * 1.7f * density
-            val a = (16 - i * 2).coerceAtLeast(2)
-            fill.color = Color.argb(a, 60, 66, 190)
-            rect2.set(rect.left - g, rect.top - g + 3f * density, rect.right + g, rect.bottom + g + 3f * density)
+        val n = 14
+        val step = 1.0f * density
+        val peak = 0.15f
+        for (i in 1..n) {
+            // Profil kuadratik: pekat di dekat tepi lalu memudar halus (tanpa pita/garis terlihat).
+            val hi = 1f - (i - 1f) / n
+            val lo = 1f - i.toFloat() / n
+            val alpha = Math.round(255f * peak * (hi * hi - lo * lo))
+            if (alpha <= 0) continue
+            val g = i * step
+            fill.color = Color.argb(alpha, 38, 46, 98)
+            rect2.set(rect.left - g, rect.top - g + 4f * density, rect.right + g, rect.bottom + g + 4f * density)
             c.drawRoundRect(rect2, rr[0] + g, rr[0] + g, fill)
         }
+        // Penting: kembalikan warna cat ke opak, kalau tidak semua lapisan kaca ikut memudar (alpha cat mengalikan shader).
+        fill.color = Color.BLACK
         c.restore()
     }
 
@@ -374,6 +383,7 @@ open class GlassDrawable(
             fill.color = 0xE6F3F5FF.toInt()
             canvas.drawRect(rect, fill)
         }
+        fill.color = Color.BLACK
         fill.shader = frostShader
         canvas.drawRect(rect, fill)
         if (tintShader != null) {
@@ -390,20 +400,10 @@ open class GlassDrawable(
         // Garis tepi tipis supaya panel tetap terbaca di atas latar terang.
         line.shader = null
         line.strokeWidth = 1f * density
-        line.color = 0x2E4A4FD0
+        line.color = 0x264A4FD0
         canvas.drawPath(hairPath, line)
 
-        // Pergeseran warna di tepi (cyan ke kiri, magenta ke kanan), seperti dispersi cahaya pada kaca.
         line.strokeWidth = 1.2f * density
-        val shift = 0.7f * density
-        canvas.save()
-        canvas.translate(-shift, 0f)
-        line.color = 0x2600D2FF
-        canvas.drawPath(rimPath, line)
-        canvas.translate(2f * shift, 0f)
-        line.color = 0x26FF46AA
-        canvas.drawPath(rimPath, line)
-        canvas.restore()
 
         // Rim cahaya: terang di sudut kiri atas dan kanan bawah.
         line.shader = rimShader
@@ -437,7 +437,7 @@ class GlassBubbleDrawable : GlassDrawable(
 
 /** Kapsul kaca (kolom ketik, tombol bulat, kunci angka). */
 class GlassPillDrawable : GlassDrawable(
-    floatArrayOf(40f, 40f, 40f, 40f), 0x8CFFFFFF.toInt(), 0x66FFFFFF, 0, 0, true
+    floatArrayOf(40f, 40f, 40f, 40f), 0x8CFFFFFF.toInt(), 0x66FFFFFF, 0, 0, false
 )
 
 /** Kartu utama bertinta ungu-biru, tetap kaca (rim, kilau, blur) tapi lebih pekat untuk teks putih. */

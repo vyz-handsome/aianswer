@@ -1,4 +1,10 @@
-# Assistant — v0.26.1
+# Assistant — v0.26.2
+
+## Perubahan v0.26.2
+- Bayangan kartu dibuat halus (profil lembut, tanpa pita), tepi kaca lebih bersih.
+- Perbaikan bug: bayangan membuat lapisan kaca ikut memudar sehingga kartu utama tidak bertinta dan teks di samping logo tidak terbaca.
+- Menu bawah putih polos tanpa warna.
+
 
 ## Perubahan v0.26.1
 - Latar aurora diganti putih bersih (bola warna dihapus). Kartu tetap kaca dengan rim, kilau, dan bayangan lembut.
