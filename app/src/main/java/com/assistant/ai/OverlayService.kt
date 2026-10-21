@@ -90,8 +90,12 @@ class OverlayService : AccessibilityService() {
             "A/B/C/D); selain itu \"question\".\n" +
             "- \"question\": tulis ulang soalnya singkat tapi lengkap, maksimal 25 kata, sertakan angka atau rumus yang terbaca (untuk riwayat dan kuis ulang).\n" +
             "- \"answer_letter\": huruf atau nomor pilihan yang benar, hanya hurufnya saja (misal \"B\"). " +
-            "Kosongkan kalau soalnya bukan pilihan ganda.\n" +
-            "- \"answer_text\": isi jawaban yang benar, sesingkat mungkin. Kosongkan kalau status \"essay\".\n" +
+            "Kosongkan kalau soalnya bukan pilihan ganda. " +
+            "PENTING: kalau di layar ada tulisan \"PGK\" atau \"Pilihan Ganda Kompleks\" (jawaban benar bisa LEBIH DARI SATU), " +
+            "periksa SETIAP pilihan (bisa sampai E atau lebih) satu per satu berdasarkan pertanyaannya, lalu tulis SEMUA huruf " +
+            "yang benar dipisah koma, urut abjad (misal \"A,C,E\"). Jangan berhenti di satu jawaban saja.\n" +
+            "- \"answer_text\": isi jawaban yang benar, sesingkat mungkin. Untuk PGK, tulis isi tiap jawaban benar dipisah \" | \". " +
+            "Kosongkan kalau status \"essay\".\n" +
             "- \"confidence\": \"high\" kalau kamu yakin, \"medium\" kalau agak ragu, \"low\" kalau menebak atau soal kurang jelas.\n" +
             "- \"essay_answer\": hanya kalau status \"essay\": jawaban SINGKAT dan langsung ke inti (to the point), dalam bahasa " +
             "yang sama dengan soalnya. Standarnya 1 sampai 3 kalimat pendek, maksimal sekitar 50 kata. Tanpa pembuka, tanpa " +
@@ -601,7 +605,7 @@ class OverlayService : AccessibilityService() {
         if (accurate) {
             MANUAL_INSTRUCTIONS.replace("SANGAT singkat (satu kalimat, maksimal 25 kata)", "singkat (maksimal 3 kalimat)") +
                 "\n- \"check_letter\": hitung ulang soalnya dengan cara yang BERBEDA lalu tulis huruf hasilnya " +
-                "(hanya untuk soal hitungan atau logika, selain itu kosongkan)."
+                "(hanya untuk soal hitungan atau logika, selain itu kosongkan). Untuk PGK, tulis semua huruf hasil hitung ulang dipisah koma."
         } else {
             MANUAL_INSTRUCTIONS
         }
@@ -685,7 +689,7 @@ class OverlayService : AccessibilityService() {
             return@runGuarded
         }
         // Cek ulang beda dengan jawaban utama = ragu, apa pun yang dikatakan AI soal keyakinannya.
-        val conflict = ans.check.isNotEmpty() && ans.letter.isNotEmpty() && !ans.check.equals(ans.letter, ignoreCase = true)
+        val conflict = ans.check.isNotEmpty() && ans.letter.isNotEmpty() && !sameLetters(ans.check, ans.letter)
         val level = if (conflict) (if (ans.confidence == "low") "low" else "medium") else ans.confidence
         val escNote = if (escalatedFrom.isNotEmpty()) ", dinaikkan ke mode akurat dari $escalatedFrom" else ""
         addLog(
@@ -704,8 +708,12 @@ class OverlayService : AccessibilityService() {
                 )
             )
         }
-        val base = if (ans.letter.isNotEmpty()) ans.letter.take(4).uppercase() else ans.text.take(8)
-        var shown = if (conflict) "${ans.letter.take(2).uppercase()}/${ans.check.take(2).uppercase()}?" else base
+        val multi = ans.letter.contains(',')
+        val base = if (ans.letter.isNotEmpty()) ans.letter.take(if (multi) 14 else 4).uppercase() else ans.text.take(8)
+        var shown = if (conflict) {
+            val n = if (multi || ans.check.contains(',')) 9 else 2
+            "${ans.letter.take(n).uppercase()}/${ans.check.take(n).uppercase()}?"
+        } else base
         if (hit != null) shown += "↺"
         setBubble(shown.ifEmpty { "?" }, colorFor(level))
     }
@@ -1267,16 +1275,26 @@ class OverlayService : AccessibilityService() {
         return JSONObject(raw.substring(start, end + 1))
     }
 
+    /** Rapikan huruf jawaban. Satu huruf tetap satu; PGK (banyak jawaban) jadi "A,C,E" urut dan tanpa duplikat. */
+    private fun normLetters(s: String): String {
+        val parts = Regex("[A-Za-z0-9]+").findAll(s).map { it.value }.toList()
+        if (parts.isEmpty()) return ""
+        val items = parts
+        return items.map { it.uppercase() }.distinct().sortedWith(compareBy({ it.length }, { it })).joinToString(",")
+    }
+
+    private fun sameLetters(a: String, b: String): Boolean = normLetters(a) == normLetters(b)
+
     private fun parseAnswer(raw: String): Answer {
         val o = jsonOf(raw)
         return Answer(
             status = clean(o.optString("status")).lowercase(),
-            letter = clean(o.optString("answer_letter")).takeWhile { it.isLetterOrDigit() },
+            letter = normLetters(clean(o.optString("answer_letter"))),
             text = clean(o.optString("answer_text")),
             essay = clean(o.optString("essay_answer")).replace("**", "").replace("__", ""),
             question = clean(o.optString("question")).take(120),
             confidence = clean(o.optString("confidence")).lowercase(),
-            check = clean(o.optString("check_letter")).takeWhile { it.isLetterOrDigit() }
+            check = normLetters(clean(o.optString("check_letter")))
         )
     }
 
