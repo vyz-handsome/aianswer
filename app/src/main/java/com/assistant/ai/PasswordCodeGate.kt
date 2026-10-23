@@ -35,7 +35,17 @@ internal class PasswordCodeGate(private val activity: AppCompatActivity) {
     private lateinit var message: TextView
     private lateinit var keypad: LinearLayout
     private var unlocking = false
+    private var checking = false
     private var resetRunnable: Runnable? = null
+
+    fun isShowing(): Boolean = ::overlay.isInitialized && overlay.parent != null && !unlocking
+
+    /** Pesan di bawah titik kode (mis. alasan app terkunci lagi). */
+    fun setNotice(text: String) {
+        if (!::message.isInitialized) return
+        message.text = text
+        message.setTextColor(0xFFC83F59.toInt())
+    }
 
     fun show() {
         val host = activity.findViewById<FrameLayout>(android.R.id.content) ?: return
@@ -256,7 +266,7 @@ internal class PasswordCodeGate(private val activity: AppCompatActivity) {
     }
 
     private fun addDigit(digit: String) {
-        if (unlocking || entered.length >= 4) return
+        if (unlocking || checking || entered.length >= 4) return
         panel.performHapticFeedback(android.view.HapticFeedbackConstants.KEYBOARD_TAP)
         resetMessage()
         entered.append(digit)
@@ -265,14 +275,14 @@ internal class PasswordCodeGate(private val activity: AppCompatActivity) {
     }
 
     private fun deleteOne() {
-        if (unlocking || entered.isEmpty()) return
+        if (unlocking || checking || entered.isEmpty()) return
         resetMessage()
         entered.deleteCharAt(entered.length - 1)
         updateDots()
     }
 
     private fun clearCode() {
-        if (unlocking) return
+        if (unlocking || checking) return
         entered.clear()
         resetMessage()
         updateDots()
@@ -293,41 +303,18 @@ internal class PasswordCodeGate(private val activity: AppCompatActivity) {
     }
 
     private fun checkCode() {
-        if (unlocking || entered.length != 4) return
-        val code = entered.toString()
-        message.text = "Memeriksa..."
+        if (unlocking || checking || entered.length != 4) return
+        checking = true
+        message.text = "Memeriksa kode..."
         message.setTextColor(0xFF788197.toInt())
-        keypad.isEnabled = false
-        ApiClient.verify(activity, code) { result ->
-            keypad.isEnabled = true
-            if (result.ok) {
-                val body = result.body!!
-                Prefs.setSession(
-                    activity,
-                    body.optString("session_token"),
-                    body.optString("ptype"),
-                    if (body.isNull("expires_at")) null else body.optLong("expires_at") * 1000L
-                )
-                unlock()
-            } else {
-                showFail(failMessage(result))
-            }
+        Remote.login(activity, entered.toString()) { res ->
+            checking = false
+            if (res.ok) unlock() else wrongCode(res.error)
         }
     }
 
-    private fun failMessage(result: ApiResult): String = when {
-        result.httpCode == 0 -> "Tidak bisa terhubung ke server. Cek koneksi internet."
-        result.httpCode == 423 -> {
-            val sisa = result.body?.optInt("retry_after", 0) ?: 0
-            "Terlalu banyak salah. Coba lagi dalam ${(sisa / 60) + 1} menit."
-        }
-        result.httpCode == 403 -> "Kode ini sudah terpakai di perangkat lain."
-        result.httpCode == 401 -> "Kode tidak benar atau sudah tidak berlaku."
-        else -> "Gagal memeriksa kode. Coba lagi."
-    }
-
-    private fun showFail(text: String) {
-        message.text = text
+    private fun wrongCode(error: String) {
+        message.text = error
         message.setTextColor(0xFFC83F59.toInt())
         ObjectAnimator.ofFloat(panel, "translationX", 0f, -dp(6).toFloat(), dp(6).toFloat(), -dp(4).toFloat(), dp(4).toFloat(), 0f)
             .setDuration(340L).start()
@@ -339,7 +326,7 @@ internal class PasswordCodeGate(private val activity: AppCompatActivity) {
                 resetMessage()
             }
         }
-        handler.postDelayed(resetRunnable!!, 900L)
+        handler.postDelayed(resetRunnable!!, 1400L)
     }
 
     private fun resetMessage() {
@@ -408,7 +395,7 @@ internal class PasswordCodeGate(private val activity: AppCompatActivity) {
 
     private fun dp(value: Int): Int = (value * activity.resources.displayMetrics.density + 0.5f).toInt()
 
-    private class LockGlyphView(context: android.content.Context) : View(context) {
+    internal class LockGlyphView(context: android.content.Context) : View(context) {
         private val stroke = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             color = Color.rgb(82, 107, 157)
             style = Paint.Style.STROKE

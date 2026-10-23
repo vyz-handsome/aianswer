@@ -10,8 +10,6 @@ import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.provider.Settings
 import android.speech.RecognizerIntent
 import android.view.Gravity
@@ -142,48 +140,61 @@ class MainActivity : AppCompatActivity() {
         showTab(0)
         MotionFx.install(findViewById(R.id.root))
 
-        ServerConfig.refreshInBackground(this)
-
-        // Password gate is an overlay; unlocking fades it away to reveal this real app menu.
-        // Build owner (com.senxvv.assistant) pakai pairing+sidik jari; build user pakai kode 4 digit ke server.
-        if (BuildConfig.IS_OWNER_BUILD) OwnerGate(this).show() else PasswordCodeGate(this).show()
-    }
-
-    private val heartbeatHandler = Handler(Looper.getMainLooper())
-    private val heartbeatRunnable = object : Runnable {
-        override fun run() {
-            if (!BuildConfig.IS_OWNER_BUILD && Prefs.sessionToken(this@MainActivity).isNotEmpty()) {
-                ApiClient.heartbeat(this@MainActivity) { result ->
-                    if (result.ok) {
-                        val body = result.body!!
-                        when (body.optString("status")) {
-                            "revoked", "expired" -> {
-                                Prefs.clearSession(this@MainActivity)
-                                Prefs.setBubbleOn(this@MainActivity, false)
-                                PasswordCodeGate(this@MainActivity).show()
-                            }
-                        }
-                        Prefs.setBubbleOn(this@MainActivity, !body.optBoolean("ai_stopped", false))
-                        val pesan = body.optString("pending_message", "")
-                        if (pesan.isNotEmpty()) {
-                            android.widget.Toast.makeText(this@MainActivity, pesan, android.widget.Toast.LENGTH_LONG).show()
-                            ApiClient.messageAck(this@MainActivity)
-                        }
-                    }
-                }
-            }
-            heartbeatHandler.postDelayed(this, 60_000L)
+        // Gerbang adalah overlay; setelah terbuka ia memudar dan menampilkan menu app yang asli.
+        Remote.start(this)
+        if (Remote.isOwner(this)) {
+            showOwnerGate()
+        } else if (!Remote.allowed(this)) {
+            showUserGate(null)
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        heartbeatHandler.post(heartbeatRunnable)
+    private var userGate: PasswordCodeGate? = null
+    private var ownerGate: FingerprintGate? = null
+    private var stoppedAt = 0L
+
+    private fun showUserGate(notice: String?) {
+        val g = userGate
+        if (g != null && g.isShowing()) {
+            if (notice != null) g.setNotice(notice)
+            return
+        }
+        currentFocus?.let { focused ->
+            (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
+                .hideSoftInputFromWindow(focused.windowToken, 0)
+        }
+        userGate = PasswordCodeGate(this).also {
+            it.show()
+            if (notice != null) it.setNotice(notice)
+        }
     }
 
-    override fun onPause() {
-        heartbeatHandler.removeCallbacks(heartbeatRunnable)
-        super.onPause()
+    private fun showOwnerGate() {
+        if (ownerGate?.isShowing() == true) return
+        ownerGate = FingerprintGate(this).also { it.show() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        if (Remote.isOwner(this)) {
+            if (stoppedAt != 0L && android.os.SystemClock.elapsedRealtime() - stoppedAt > 60_000L) showOwnerGate()
+        } else {
+            Remote.lockListener = { msg -> runOnUiThread { if (!isDestroyed) showUserGate(msg) } }
+            if (!Remote.allowed(this)) showUserGate(null)
+        }
+    }
+
+    override fun onStop() {
+        stoppedAt = android.os.SystemClock.elapsedRealtime()
+        Remote.lockListener = null
+        super.onStop()
+    }
+
+    private fun showOwnerMessages() {
+        for (m in Remote.takeMessages(this)) {
+            Glass.builder(this).setTitle("Pesan dari owner").setMessage(m)
+                .setPositiveButton("OK", null).showGlass()
+        }
     }
 
     /** 0 = Beranda, 1 = Tanya AI, 2 = Latihan, 3 = Riwayat, 4 = Pengaturan. Halaman baru masuk sambil meluncur dan memudar. */
@@ -394,13 +405,24 @@ class MainActivity : AppCompatActivity() {
     private fun setupSettings() {
         settingsPage = findViewById(R.id.settingsPage)
         findViewById<Button>(R.id.btnLogout).setOnClickListener {
-            // Kunci kembali layar aplikasi dengan gate yang sama; kode tetap diminta saat dibuka lagi.
+            // Owner: kunci lagi dengan sidik jari. User: sesi kode berakhir, kode diminta lagi.
             currentFocus?.let { focused ->
                 (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
                     .hideSoftInputFromWindow(focused.windowToken, 0)
             }
-            if (!BuildConfig.IS_OWNER_BUILD) ApiClient.logout(this, "logout")
-            if (BuildConfig.IS_OWNER_BUILD) OwnerGate(this).show() else PasswordCodeGate(this).show()
+            if (Remote.isOwner(this)) {
+                showOwnerGate()
+            } else {
+                Remote.onUserAction(this, "logout")
+                OverlayService.instance?.stopBubble()
+                showUserGate("Kamu sudah keluar. Masukkan kode untuk masuk lagi.")
+            }
+        }
+        if (Remote.isOwner(this)) {
+            findViewById<View>(R.id.ownerCard).visibility = View.VISIBLE
+            findViewById<Button>(R.id.btnOwnerPanel).setOnClickListener {
+                startActivity(Intent(this, OwnerActivity::class.java))
+            }
         }
         val spinner = findViewById<Spinner>(R.id.cfgModel)
         val key = findViewById<EditText>(R.id.cfgKey)
@@ -580,6 +602,8 @@ class MainActivity : AppCompatActivity() {
         OverlayService.instance?.stopBubble()
         Toast.makeText(this, "Bubble AI dihentikan.", Toast.LENGTH_SHORT).show()
         refreshStatus()
+        // Kode sekali pakai berakhir saat Stop AI ditekan.
+        Remote.onUserAction(this, "stop_ai")
     }
 
     private fun refreshStatus() {
@@ -610,6 +634,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+        showOwnerMessages()
         showLog()
         refreshStatus()
         updateHeader()
@@ -619,7 +644,7 @@ class MainActivity : AppCompatActivity() {
     // ------------------------------------------------------------------ ganti nama + ikon app (beneran, via activity-alias)
 
     private fun aliasComponent(n: Int, c: Int) =
-        ComponentName(packageName, "$packageName.Launcher_n${n}_c${c}")
+        ComponentName(packageName, "com.assistant.ai.Launcher_n${n}_c${c}")
 
     private fun isAliasEnabled(n: Int, c: Int): Boolean {
         val st = packageManager.getComponentEnabledSetting(aliasComponent(n, c))
@@ -1092,6 +1117,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         executor.shutdownNow()
+        // App dihapus dari recent (activity benar-benar ditutup): kode sekali pakai berakhir.
+        if (isFinishing && !isChangingConfigurations) Remote.onUserAction(this, "recents")
         super.onDestroy()
     }
 

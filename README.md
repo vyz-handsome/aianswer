@@ -1,3 +1,16 @@
+# Assistant — v0.27.0
+
+## Perubahan v0.27.0 (sistem password owner + app user)
+- **Password tidak lagi tertanam (2580 dihapus).** Kode dibuat owner lewat bot Telegram atau Pengaturan > Panel Owner (app owner).
+- **App owner** dibuka dengan **sidik jari saja** (BIOMETRIC_STRONG, tanpa PIN/pola/sandi HP), diminta tiap app dibuka atau kembali dari background lebih dari 1 menit. Pairing ke server sekali lewat kode dari bot (/pair).
+- **App user** dibuat dari app owner: nama app dan package name bebas (kosong = otomatis). APK dibuat server dengan template + patch (hitungan detik) lalu dikirim ke bot Telegram bersama kodenya.
+- **Jenis kode**: permanen, sekali pakai (berakhir saat Stop AI, app dihapus dari recent, atau Log Out), berbatas waktu (menit/jam/hari, hitungan mulai saat pertama dipakai). 1 kode = 1 app = 1 HP (HP lain ditolak dan owner dapat notif). Kode 4 digit, 5x salah = kunci 15 menit.
+- Permanen/berbatas waktu: login sekali, tetap masuk sampai Log Out, kedaluwarsa, atau dicabut owner. Server mati: app tetap jalan sementara (10 menit) lalu terkunci sampai terhubung lagi.
+- **Aktivitas** yang terlihat owner: online/offline, terakhir aktif, versi app, info HP (Android ID, merek/model, versi Android), jumlah dan log pemakaian AI.
+- **Kontrol jarak jauh**: Stop AI, sembunyikan/munculkan bubble, kirim pesan, ubah pengaturan (model, mode akurat, fallback), kunci paksa, cabut akses, reset kunci HP, hapus.
+- **Server Termux** di folder `termux-server/` (Python + SQLite + bot Telegram + Cloudflare Tunnel, URL otomatis dipublish ke Gist). Lihat `termux-server/README.md`.
+- Mode app (owner/user) dibaca dari meta-data manifest `assistant.mode`; satu APK yang sama dipakai sebagai template.
+
 # Assistant — v0.26.2
 
 ## Perubahan v0.26.2

@@ -992,7 +992,7 @@ Contoh: /e Jelaskan fotosintesis."
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="4dp"
-                        android:text="Keluar akan mengunci aplikasi. Masukkan Password Code lagi untuk melanjutkan." />
+                        android:text="Keluar akan mengunci aplikasi. Owner membukanya lagi dengan sidik jari, user dengan Password Code dari owner." />
 
                     <Button
                         android:id="@+id/btnLogout"
@@ -1001,6 +1001,36 @@ Contoh: /e Jelaskan fotosintesis."
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
                         android:text="Log Out / Kunci aplikasi" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/ownerCard"
+                    style="@style/Card"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:visibility="gone">
+
+                    <TextView
+                        style="@style/SectionTitle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Owner" />
+
+                    <TextView
+                        style="@style/SectionSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="Buat app dan password untuk user, lihat aktivitas, dan kontrol jarak jauh." />
+
+                    <Button
+                        android:id="@+id/btnOwnerPanel"
+                        style="@style/Btn.Primary"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:text="Buka Panel Owner" />
                 </LinearLayout>
 
                 <LinearLayout

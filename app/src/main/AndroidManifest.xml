@@ -10,6 +10,16 @@
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="false">
 
+        <!-- Mode app: patcher server mengubah nilai ini jadi assistant_mode_user dan mengisi alamat discovery. -->
+        <meta-data android:name="assistant.mode" android:value="assistant_mode_owner" />
+        <meta-data android:name="assistant.discovery" android:value="DISCOVERY_URL_PLACEHOLDER_ASSISTANT_V1" />
+
+        <activity
+            android:name=".OwnerActivity"
+            android:configChanges="orientation|screenSize|keyboardHidden"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
         <!-- Tanpa intent-filter LAUNCHER: ikon + nama di launcher diatur oleh activity-alias di bawah.
              Hanya satu alias yang aktif; app mengganti alias aktif saat user memilih nama/ikon baru. -->
         <activity

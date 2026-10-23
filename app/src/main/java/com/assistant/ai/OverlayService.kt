@@ -188,7 +188,8 @@ class OverlayService : AccessibilityService() {
         super.onServiceConnected()
         wm = getSystemService(WINDOW_SERVICE) as WindowManager
         instance = this
-        if (bubble == null && Prefs.bubbleOn(this) && !testLock) addBubble()
+        Remote.start(this)
+        if (bubble == null && Prefs.bubbleOn(this) && !testLock && Remote.allowed(this)) addBubble()
     }
 
     // Event cuma dipakai buat tahu kapan layar "tenang" (selesai berubah). Layar BARU dibaca saat bubble diketuk.
@@ -208,13 +209,6 @@ class OverlayService : AccessibilityService() {
     override fun onDestroy() {
         removeAll()
         super.onDestroy()
-    }
-
-    /** App (recent-task card) dihapus user dari daftar aplikasi terbaru.
-     * Untuk password tipe sekali pakai, ini salah satu pemicu kode berakhir selamanya. */
-    override fun onTaskRemoved(rootIntent: android.content.Intent?) {
-        ApiClient.logout(this, "removed_from_recent")
-        super.onTaskRemoved(rootIntent)
     }
 
     // ------------------------------------------------------------------ bubble
@@ -515,6 +509,11 @@ class OverlayService : AccessibilityService() {
 
     private fun startRun(kind: Int, force: Boolean = false) {
         if (testLock) return
+        if (!Remote.allowed(this)) {
+            addLog("Akses terkunci. Buka app lalu masukkan kode dari owner.")
+            flashBubble("!")
+            return
+        }
         if (running) {
             cancelled = true
             return
@@ -771,7 +770,7 @@ class OverlayService : AccessibilityService() {
     /** Start AI: pasang bubble di layar (atau munculkan lagi kalau tadi disembunyikan dengan ketuk 2x). */
     fun startBubble() {
         main.post {
-            if (testLock) return@post
+            if (testLock || !Remote.allowed(this)) return@post
             if (bubble == null) addBubble() else if (bubbleHidden) showBubble()
         }
     }
@@ -779,8 +778,13 @@ class OverlayService : AccessibilityService() {
     /** Sesi Latihan selesai: pasang lagi bubble kalau sebelumnya aktif. */
     fun restoreBubble() {
         main.post {
-            if (!testLock && Prefs.bubbleOn(this) && bubble == null) addBubble()
+            if (!testLock && Prefs.bubbleOn(this) && bubble == null && Remote.allowed(this)) addBubble()
         }
+    }
+
+    /** Dipakai perintah jarak jauh owner: sembunyikan bubble (seperti ketuk 2x). */
+    fun hideRemote() {
+        main.post { hideBubble() }
     }
 
     /** Stop AI: hentikan proses yang jalan lalu hapus bubble dari layar sampai Start AI ditekan lagi. */

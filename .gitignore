@@ -5,3 +5,8 @@ local.properties
 *.iml
 .DS_Store
 captures/
+
+# Server Termux (rahasia, jangan di-commit)
+termux-server/config.json
+termux-server/data/
+termux-server/__pycache__/

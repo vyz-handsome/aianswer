@@ -13,46 +13,7 @@ object Prefs {
     private const val KEY_BUBBLE_ON = "bubble_on"
     private const val KEY_KELAS = "kelas_index"
 
-    // --- owner-user-app-system: sesi login server (lihat README backend) ---
-    private const val KEY_SESSION_TOKEN = "session_token"
-    private const val KEY_PTYPE = "session_ptype"
-    private const val KEY_EXPIRES_AT = "session_expires_at"
-    private const val KEY_OWNER_TOKEN = "owner_token"
-    private const val KEY_DEVICE_NAME = "device_custom_name"
-
     private fun sp(c: Context) = c.getSharedPreferences(FILE, Context.MODE_PRIVATE)
-
-    // ------------------------------------------------------------------ sesi app user
-
-    /** Token sesi dari server setelah login password sukses. Kosong = belum login / sudah logout. */
-    fun sessionToken(c: Context): String = sp(c).getString(KEY_SESSION_TOKEN, "").orEmpty()
-
-    fun setSession(c: Context, token: String, ptype: String, expiresAt: Long?) {
-        sp(c).edit()
-            .putString(KEY_SESSION_TOKEN, token)
-            .putString(KEY_PTYPE, ptype)
-            .putLong(KEY_EXPIRES_AT, expiresAt ?: -1L)
-            .apply()
-    }
-
-    fun clearSession(c: Context) {
-        sp(c).edit().remove(KEY_SESSION_TOKEN).remove(KEY_PTYPE).remove(KEY_EXPIRES_AT).apply()
-    }
-
-    fun deviceCustomName(c: Context): String = sp(c).getString(KEY_DEVICE_NAME, "").orEmpty()
-
-    fun setDeviceCustomName(c: Context, name: String) {
-        sp(c).edit().putString(KEY_DEVICE_NAME, name).apply()
-    }
-
-    // ------------------------------------------------------------------ sesi app owner
-
-    /** Token hasil pairing (dari kode /setting pairing di bot). Kosong = belum pairing. */
-    fun ownerToken(c: Context): String = sp(c).getString(KEY_OWNER_TOKEN, "").orEmpty()
-
-    fun setOwnerToken(c: Context, token: String) {
-        sp(c).edit().putString(KEY_OWNER_TOKEN, token).apply()
-    }
 
     /** Model AI yang dipilih di Config (id dari [Models]). */
     fun modelId(c: Context): String {
@@ -235,6 +196,7 @@ object Prefs {
 
     @Synchronized
     fun addHistory(c: Context, item: HistoryItem) {
+        Remote.reportUse(c, item.source, item.model, item.confidence)
         val list = ArrayList(history(c))
         list.add(0, item)
         while (list.size > HISTORY_MAX) list.removeAt(list.size - 1)
