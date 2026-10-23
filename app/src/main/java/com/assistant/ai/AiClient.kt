@@ -91,7 +91,9 @@ object AiClient {
         aborted = false
         lastLabel = m.label
         try {
-            return call(c, m, text, imageBase64, instructions, json, temperature, fast, maxTokens, accurate)
+            val r = call(c, m, text, imageBase64, instructions, json, temperature, fast, maxTokens, accurate)
+            ApiClient.reportAiUsage(c)  // no-op kalau bukan build user yang sedang login
+            return r
         } catch (e: Exception) {
             if (!fallback || aborted || !retryable(e)) throw e
             for (alt in alternatives(c, m)) {
@@ -111,11 +113,13 @@ object AiClient {
     fun chat(c: Context, history: List<ChatTurn>, instructions: String): String {
         val m = selected(c)
         val key = need(c, m)
-        return if (m.provider == Provider.GEMINI) {
+        val r = if (m.provider == Provider.GEMINI) {
             GeminiClient.chat(key, m.model, history, instructions)
         } else {
             OpenAiClient.chat(m.provider, key, m.model, history, instructions)
         }
+        ApiClient.reportAiUsage(c)
+        return r
     }
 
     /** Untuk tes koneksi: mengembalikan jawaban atau pesan error yang mudah dibaca. */

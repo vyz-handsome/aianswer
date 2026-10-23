@@ -1,8 +1,19 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/window_bg">
+
+    <!-- Latar aurora: bola warna tajam di luar kaca, dan sumber blur untuk semua panel kaca. -->
+    <com.assistant.ai.AuroraBackground
+        android:id="@+id/aurora"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+<LinearLayout
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F6F8FD"
     android:orientation="vertical">
 
     <FrameLayout
@@ -21,24 +32,25 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <!-- Header -->
+                <!-- Kartu utama -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/header_bg"
-                    android:elevation="4dp"
+                    android:background="@drawable/hero_bg"
                     android:orientation="vertical"
                     android:padding="20dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:gravity="center_vertical"
                         android:baselineAligned="false"
-        android:orientation="horizontal">
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
                         <ImageView
                             android:id="@+id/headerIcon"
@@ -57,8 +69,9 @@
                                 android:id="@+id/headerName"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
+                                android:letterSpacing="-0.02"
                                 android:textColor="#FFFFFF"
-                                android:textSize="21sp"
+                                android:textSize="24sp"
                                 android:textStyle="bold" />
 
                             <TextView
@@ -66,7 +79,7 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:layout_marginTop="2dp"
-                                android:textColor="#E6E3FF"
+                                android:textColor="#EAE8FF"
                                 android:textSize="13sp" />
                         </LinearLayout>
                     </LinearLayout>
@@ -75,12 +88,12 @@
                         android:id="@+id/status"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="16dp"
+                        android:layout_marginTop="18dp"
                         android:background="@drawable/chip_off"
                         android:paddingStart="14dp"
-                        android:paddingTop="6dp"
+                        android:paddingTop="7dp"
                         android:paddingEnd="14dp"
-                        android:paddingBottom="6dp"
+                        android:paddingBottom="7dp"
                         android:textSize="13sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -90,7 +103,7 @@
                     style="@style/Card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp">
+                    android:layout_marginTop="16dp">
 
                     <TextView
                         style="@style/SectionTitle"
@@ -105,53 +118,71 @@
                         android:layout_height="wrap_content"
                         android:layout_marginTop="2dp" />
 
-                    <Button
-                        android:id="@+id/btnConfig"
-                        style="@style/Btn.Secondary"
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="14dp"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
+
+                        <Button
+                            android:id="@+id/btnStart"
+                            style="@style/Btn.Primary"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Mulai AI" />
+
+                        <Button
+                            android:id="@+id/btnStop"
+                            style="@style/Btn.Danger"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:text="Hentikan AI" />
+                    </LinearLayout>
+
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
-                        android:text="Pengaturan AI" />
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnTest"
-                        style="@style/Btn.Secondary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Tes koneksi" />
+                        <Button
+                            android:id="@+id/btnConfig"
+                            style="@style/Btn.Secondary"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Pengaturan AI" />
+
+                        <Button
+                            android:id="@+id/btnTest"
+                            style="@style/Btn.Secondary"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:text="Tes koneksi" />
+                    </LinearLayout>
 
                     <TextView
                         android:id="@+id/testResult"
                         style="@style/SectionSub"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="6dp"
+                        android:layout_marginTop="10dp"
                         android:visibility="gone" />
-
-                    <Button
-                        android:id="@+id/btnStart"
-                        style="@style/Btn.Primary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Mulai AI" />
-
-                    <Button
-                        android:id="@+id/btnStop"
-                        style="@style/Btn.Danger"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Hentikan AI" />
                 </LinearLayout>
 
-                <!-- Layanan -->
+                <!-- Aksesibilitas -->
                 <LinearLayout
                     style="@style/Card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp">
+                    android:layout_marginTop="16dp">
 
                     <TextView
                         style="@style/SectionTitle"
@@ -171,7 +202,7 @@
                         style="@style/Btn.Primary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="12dp"
+                        android:layout_marginTop="14dp"
                         android:text="Aktifkan aksesibilitas" />
 
                     <Button
@@ -179,16 +210,16 @@
                         style="@style/Btn.Secondary"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
+                        android:layout_marginTop="10dp"
                         android:text="Info aplikasi" />
                 </LinearLayout>
 
-                <!-- Cara pakai -->
+                <!-- Panduan -->
                 <LinearLayout
                     style="@style/Card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp">
+                    android:layout_marginTop="16dp">
 
                     <TextView
                         android:id="@+id/helpToggle"
@@ -214,7 +245,7 @@
                     style="@style/Card"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="14dp">
+                    android:layout_marginTop="16dp">
 
                     <TextView
                         style="@style/SectionTitle"
@@ -232,21 +263,30 @@
                         android:textIsSelectable="true"
                         android:textSize="11sp" />
 
-                    <Button
-                        android:id="@+id/btnRefreshLog"
-                        style="@style/Btn.Secondary"
+                    <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10dp"
-                        android:text="Perbarui log" />
+                        android:layout_marginTop="12dp"
+                        android:baselineAligned="false"
+                        android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnCopyLog"
-                        style="@style/Btn.Secondary"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="Salin log" />
+                        <Button
+                            android:id="@+id/btnRefreshLog"
+                            style="@style/Btn.Secondary"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:text="Perbarui log" />
+
+                        <Button
+                            android:id="@+id/btnCopyLog"
+                            style="@style/Btn.Secondary"
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="10dp"
+                            android:layout_weight="1"
+                            android:text="Salin log" />
+                    </LinearLayout>
                 </LinearLayout>
 
                 <Space
@@ -260,6 +300,8 @@
             android:id="@+id/chatPage"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false"
             android:orientation="vertical"
             android:padding="16dp"
             android:visibility="gone">
@@ -267,12 +309,12 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical"
                 android:baselineAligned="false"
-        android:orientation="horizontal">
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
                 <TextView
-                    style="@style/SectionTitle"
+                    style="@style/PageTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -283,13 +325,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="8dp"
-                    android:background="@drawable/tab_selected"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
+                    android:background="@drawable/chip_glass"
+                    android:paddingStart="14dp"
+                    android:paddingTop="7dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="7dp"
                     android:text="?"
-                    android:textColor="#4640CF"
+                    android:textColor="@color/accent_deep"
                     android:textSize="13sp"
                     android:textStyle="bold" />
 
@@ -297,13 +339,13 @@
                     android:id="@+id/btnNewChat"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:background="@drawable/tab_selected"
-                    android:paddingStart="12dp"
-                    android:paddingTop="6dp"
-                    android:paddingEnd="12dp"
-                    android:paddingBottom="6dp"
+                    android:background="@drawable/chip_glass"
+                    android:paddingStart="14dp"
+                    android:paddingTop="7dp"
+                    android:paddingEnd="14dp"
+                    android:paddingBottom="7dp"
                     android:text="Chat baru"
-                    android:textColor="#4640CF"
+                    android:textColor="@color/accent_deep"
                     android:textSize="13sp"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -333,10 +375,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
+                    android:layout_margin="8dp"
+                    android:background="@drawable/card_flat"
                     android:gravity="center"
                     android:padding="24dp"
-                    android:text="Tanya materi pelajaran atau kirim foto soal.\n\nPerintah cepat: /a jawab · /e jelaskan · /r rangkum · /q kuis.\n\nContoh: /e Jelaskan fotosintesis."
-                    android:textColor="#9A9DB2"
+                    android:text="Tanya materi pelajaran atau kirim foto soal.
+
+Perintah cepat: /a jawab · /e jelaskan · /r rangkum · /q kuis.
+
+Contoh: /e Jelaskan fotosintesis."
+                    android:textColor="@color/ink2"
                     android:textSize="14sp" />
             </FrameLayout>
 
@@ -346,10 +394,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:background="@drawable/card_ui"
-                android:gravity="center_vertical"
+                android:background="@drawable/card_flat"
                 android:baselineAligned="false"
-        android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
                 android:padding="8dp"
                 android:visibility="gone">
 
@@ -373,7 +421,7 @@
                     android:layout_height="wrap_content"
                     android:padding="10dp"
                     android:text="✕"
-                    android:textColor="#555555"
+                    android:textColor="@color/ink2"
                     android:textSize="16sp" />
             </LinearLayout>
 
@@ -390,53 +438,63 @@
                     android:orientation="horizontal" />
             </HorizontalScrollView>
 
+            <!-- Kolom ketik: kapsul kaca -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:gravity="bottom"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/glass_bar"
                 android:baselineAligned="false"
-        android:orientation="horizontal">
+                android:gravity="bottom"
+                android:orientation="horizontal"
+                android:padding="6dp">
 
                 <TextView
                     android:id="@+id/btnAttach"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:background="@drawable/tab_selected"
+                    android:layout_width="44dp"
+                    android:layout_height="44dp"
+                    android:background="@drawable/circle_glass"
+                    android:contentDescription="Tambah foto"
                     android:gravity="center"
                     android:text="+"
-                    android:textSize="22sp"
-                    android:contentDescription="Tambah foto" />
+                    android:textColor="@color/accent_deep"
+                    android:textSize="24sp" />
 
                 <EditText
                     android:id="@+id/chatInput"
                     style="@style/Input"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="4dp"
                     android:layout_weight="1"
+                    android:background="@null"
                     android:hint="Tulis atau ucapkan pertanyaan…"
                     android:inputType="textMultiLine|textCapSentences"
-                    android:maxLines="4" />
+                    android:maxLines="4"
+                    android:minHeight="44dp"
+                    android:paddingStart="12dp"
+                    android:paddingTop="10dp"
+                    android:paddingEnd="8dp"
+                    android:paddingBottom="10dp" />
 
                 <TextView
                     android:id="@+id/btnVoice"
                     android:layout_width="44dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="6dp"
-                    android:background="@drawable/tab_selected"
+                    android:layout_height="44dp"
+                    android:background="@drawable/circle_glass"
                     android:contentDescription="Tanya AI dengan suara"
                     android:gravity="center"
                     android:text="🎤"
-                    android:textSize="20sp" />
+                    android:textSize="19sp" />
 
                 <Button
                     android:id="@+id/btnSend"
                     style="@style/Btn.Primary"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
+                    android:layout_marginStart="6dp"
                     android:minWidth="0dp"
+                    android:minHeight="44dp"
                     android:paddingStart="18dp"
                     android:paddingEnd="18dp"
                     android:text="Kirim" />
@@ -456,10 +514,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:padding="16dp">
 
                 <TextView
-                    style="@style/SectionTitle"
+                    style="@style/PageTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Latihan" />
@@ -491,7 +551,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:background="@drawable/input_bg"
+                    android:background="@drawable/input_select"
                     android:minHeight="48dp"
                     android:padding="6dp" />
 
@@ -509,7 +569,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:background="@drawable/input_bg"
+                    android:background="@drawable/input_select"
                     android:minHeight="48dp"
                     android:padding="6dp" />
 
@@ -537,7 +597,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:background="@drawable/input_bg"
+                    android:background="@drawable/input_select"
                     android:minHeight="48dp"
                     android:padding="6dp" />
 
@@ -670,7 +730,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="6dp"
-                    android:background="@drawable/input_bg"
+                    android:background="@drawable/input_select"
                     android:minHeight="48dp"
                     android:padding="6dp" />
 
@@ -706,11 +766,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
-            android:padding="16dp"
+            android:clipChildren="false"
+                android:clipToPadding="false"
+                android:padding="16dp"
             android:visibility="gone">
 
             <TextView
-                style="@style/SectionTitle"
+                style="@style/PageTitle"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Riwayat &amp; Statistik" />
@@ -831,10 +893,13 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:background="@drawable/chip_glass"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
                         android:gravity="center"
-                        android:padding="10dp"
+                        android:padding="11dp"
                         android:text="Ekspor"
-                        android:textColor="#4640CF"
+                        android:textColor="@color/accent_deep"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -843,10 +908,13 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:background="@drawable/chip_glass"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
                         android:gravity="center"
                         android:padding="10dp"
                         android:text="Kuis ulang"
-                        android:textColor="#4640CF"
+                        android:textColor="@color/accent_deep"
                         android:textSize="13sp"
                         android:textStyle="bold" />
 
@@ -855,10 +923,13 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
+                        android:background="@drawable/chip_glass"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginEnd="4dp"
                         android:gravity="center"
                         android:padding="10dp"
                         android:text="Hapus semua"
-                        android:textColor="#D63031"
+                        android:textColor="@color/danger"
                         android:textSize="13sp"
                         android:textStyle="bold" />
                 </LinearLayout>
@@ -894,10 +965,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:padding="16dp">
 
                 <TextView
-                    style="@style/SectionTitle"
+                    style="@style/PageTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Pengaturan" />
@@ -954,7 +1027,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="12dp"
-                        android:background="@drawable/input_bg"
+                        android:background="@drawable/input_select"
                         android:minHeight="48dp"
                         android:padding="6dp" />
 
@@ -1312,3 +1385,4 @@
             android:layout_height="wrap_content" />
     </LinearLayout>
 </LinearLayout>
+</FrameLayout>

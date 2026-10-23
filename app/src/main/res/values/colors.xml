@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="ink">#14183A</color>
+    <color name="ink2">#4F5478</color>
+    <color name="ink3">#6F7394</color>
+    <color name="accent">#6559F2</color>
+    <color name="accent_deep">#4A3DD6</color>
+    <color name="accent_blue">#3F86F4</color>
+    <color name="ok">#0B7A55</color>
+    <color name="warn">#B45F06</color>
+    <color name="danger">#C7303F</color>
+    <color name="window_bg">#FFFFFF</color>
+</resources>

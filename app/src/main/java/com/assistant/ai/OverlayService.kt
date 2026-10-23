@@ -210,6 +210,13 @@ class OverlayService : AccessibilityService() {
         super.onDestroy()
     }
 
+    /** App (recent-task card) dihapus user dari daftar aplikasi terbaru.
+     * Untuk password tipe sekali pakai, ini salah satu pemicu kode berakhir selamanya. */
+    override fun onTaskRemoved(rootIntent: android.content.Intent?) {
+        ApiClient.logout(this, "removed_from_recent")
+        super.onTaskRemoved(rootIntent)
+    }
+
     // ------------------------------------------------------------------ bubble
 
     private fun baseColor(): Int = BubbleStyle.color(this)

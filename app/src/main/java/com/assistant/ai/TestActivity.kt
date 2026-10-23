@@ -611,7 +611,7 @@ class TestActivity : AppCompatActivity() {
         releaseLock()
         show(Stage.RESULT)
         tvScore.text = "…"
-        tvScore.setTextColor(0xFF6B6F85.toInt())
+        tvScore.setTextColor(0xFF4F5478.toInt())
         tvScoreDetail.text = "Menilai jawaban…"
         tvReason.text = ""
         tvGradeNote.visibility = View.GONE
@@ -794,7 +794,7 @@ class TestActivity : AppCompatActivity() {
         val d = resources.displayMetrics.density
         val box = LinearLayout(this)
         box.orientation = LinearLayout.VERTICAL
-        box.setBackgroundResource(R.drawable.card_ui)
+        box.setBackgroundResource(R.drawable.card_flat)
         val pad = (14 * d).toInt()
         box.setPadding(pad, pad, pad, pad)
 
@@ -809,7 +809,7 @@ class TestActivity : AppCompatActivity() {
             val l = TextView(this)
             l.text = label
             l.textSize = 12f
-            l.setTextColor(0xFF6B6F85.toInt())
+            l.setTextColor(0xFF4F5478.toInt())
             val lp = LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT

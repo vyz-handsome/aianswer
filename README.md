@@ -1,3 +1,22 @@
+# Assistant — v0.26.2
+
+## Perubahan v0.26.2
+- Bayangan kartu dibuat halus (profil lembut, tanpa pita), tepi kaca lebih bersih.
+- Perbaikan bug: bayangan membuat lapisan kaca ikut memudar sehingga kartu utama tidak bertinta dan teks di samping logo tidak terbaca.
+- Menu bawah putih polos tanpa warna.
+
+
+## Perubahan v0.26.1
+- Latar aurora diganti putih bersih (bola warna dihapus). Kartu tetap kaca dengan rim, kilau, dan bayangan lembut.
+
+
+## Perubahan v0.26.0 (rombak tampilan: liquid glass sungguhan)
+- **Latar aurora** (`AuroraBackground`): bola warna tajam di seluruh layar. Salinan blur-nya disimpan sebagai bitmap kecil.
+- **Kaca sungguhan** (`GlassDrawable` di `GlassKit.kt`): tiap kartu, bubble AI, kolom ketik, dan tombol angka Password Code menggambar bagian aurora blur yang tepat di belakangnya, lalu frost, kilau atas, bayangan dalam, rim cahaya, pergeseran warna di tepi, dan bayangan luar lembut. Di luar kartu bola warna tajam, di dalam kartu kabur menembus kaca, dan ikut bergeser saat digulir. Memakai Canvas biasa, jalan di semua versi Android.
+- **Menu bawah** liquid glass memakai aurora blur yang sama (bukan lagi simulasi).
+- Layar Beranda, Tanya AI (kolom ketik kapsul kaca), Latihan, Riwayat, Pengaturan, Tes, dan Password Code disamakan: judul halaman besar, tombol kapsul (utama berkilau, sekunder kaca, bahaya kaca merah), chip kaca, kolom isian dengan fokus ungu, pilihan dropdown dengan panah, bubble chat pengguna bergradien.
+- Warna teks sekunder dinaikkan kontrasnya supaya terbaca di atas kaca.
+
 # Assistant — v0.25.0
 
 ## Perubahan v0.25.0

@@ -88,9 +88,9 @@ class HistoryUi(private val act: AppCompatActivity, private val onExport: () -> 
     }
 
     private fun style(tv: TextView, selected: Boolean) {
-        tv.setTextColor(if (selected) 0xFF5A4BD1.toInt() else 0xFF8A8DA3.toInt())
+        tv.setTextColor(if (selected) 0xFF5A4BD1.toInt() else 0xFF5D6285.toInt())
         tv.setTypeface(Typeface.DEFAULT, if (selected) Typeface.BOLD else Typeface.NORMAL)
-        if (selected) tv.setBackgroundResource(R.drawable.tab_selected) else tv.background = null
+        tv.setBackgroundResource(if (selected) R.drawable.tab_selected else R.drawable.chip_glass)
     }
 
     private fun dp(v: Int) = (v * d).toInt()
@@ -128,7 +128,7 @@ class HistoryUi(private val act: AppCompatActivity, private val onExport: () -> 
         if (items.isEmpty()) {
             val empty = text(
                 "Belum ada riwayat yang cocok. Tiap jawaban dari bubble dan perintah /a /e di Tanya AI tercatat di sini.",
-                13f, 0xFF9A9DB2.toInt()
+                13f, 0xFF6F7394.toInt()
             )
             empty.setPadding(dp(8), dp(24), dp(8), dp(24))
             list.addView(empty)
@@ -140,7 +140,7 @@ class HistoryUi(private val act: AppCompatActivity, private val onExport: () -> 
     private fun card(item: Prefs.HistoryItem): View {
         val box = LinearLayout(act).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundResource(R.drawable.card_ui)
+            setBackgroundResource(R.drawable.card_flat)
             setPadding(dp(14), dp(12), dp(14), dp(12))
         }
         val lp = LinearLayout.LayoutParams(
@@ -152,13 +152,13 @@ class HistoryUi(private val act: AppCompatActivity, private val onExport: () -> 
 
         val conf = confLabel(item.confidence)
         val head = timeFmt.format(Date(item.time)) + " · " + sourceLabel(item.source) + (if (conf.isEmpty()) "" else " · $conf")
-        box.addView(text(head, 11.5f, 0xFF8A8DA3.toInt()))
+        box.addView(text(head, 11.5f, 0xFF5D6285.toInt()))
         box.addView(text(item.question.ifEmpty { "(tanpa judul)" }, 14f, 0xFF1B1B2F.toInt(), true).apply {
             setPadding(0, dp(4), 0, 0)
         })
         box.addView(text("" + item.answer, 14f, 0xFF5A4BD1.toInt()).apply { setPadding(0, dp(4), 0, 0) })
         if (item.model.isNotEmpty()) {
-            box.addView(text(item.model, 11f, 0xFF9A9DB2.toInt()).apply { setPadding(0, dp(4), 0, 0) })
+            box.addView(text(item.model, 11f, 0xFF6F7394.toInt()).apply { setPadding(0, dp(4), 0, 0) })
         }
 
         val row = LinearLayout(act).apply {
@@ -176,7 +176,7 @@ class HistoryUi(private val act: AppCompatActivity, private val onExport: () -> 
                     setBackgroundResource(onBg)
                     setTextColor(onColor)
                 } else {
-                    setBackgroundResource(R.drawable.chip_idle)
+                    setBackgroundResource(R.drawable.chip_glass)
                     setTextColor(0xFF555A70.toInt())
                 }
                 setOnClickListener {
@@ -287,7 +287,7 @@ class HistoryUi(private val act: AppCompatActivity, private val onExport: () -> 
     private fun statCard(title: String, body: String, mono: Boolean = false): View {
         val box = LinearLayout(act).apply {
             orientation = LinearLayout.VERTICAL
-            setBackgroundResource(R.drawable.card_ui)
+            setBackgroundResource(R.drawable.card_flat)
             setPadding(dp(16), dp(14), dp(16), dp(14))
         }
         val lp = LinearLayout.LayoutParams(
@@ -312,7 +312,7 @@ class HistoryUi(private val act: AppCompatActivity, private val onExport: () -> 
         if (items.isEmpty()) {
             val empty = text(
                 "Belum ada data. Jawab beberapa soal dulu lewat bubble atau Tanya AI, nanti statistiknya muncul di sini.",
-                13f, 0xFF9A9DB2.toInt()
+                13f, 0xFF6F7394.toInt()
             )
             empty.setPadding(dp(8), dp(24), dp(8), dp(24))
             statsList.addView(empty)
@@ -374,7 +374,7 @@ class HistoryUi(private val act: AppCompatActivity, private val onExport: () -> 
         val fromChat = items.count { it.source == "chat" }
         statsList.addView(statCard("Sumber", "Bubble: ${items.size - fromChat}\nTanya AI: $fromChat"))
 
-        val note = text("Dihitung dari ${items.size} riwayat terbaru (maksimal 300).", 11.5f, 0xFF9A9DB2.toInt())
+        val note = text("Dihitung dari ${items.size} riwayat terbaru (maksimal 300).", 11.5f, 0xFF6F7394.toInt())
         note.setPadding(dp(4), 0, 0, dp(16))
         statsList.addView(note)
     }

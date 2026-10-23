@@ -1,8 +1,17 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/testRoot"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F4F5FB">
+    android:background="@color/window_bg">
+
+    <com.assistant.ai.AuroraBackground
+        android:id="@+id/aurora"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+<FrameLayout
+    android:id="@+id/testRoot"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
 
     <!-- ===== MEMBUAT SOAL ===== -->
     <LinearLayout
@@ -122,7 +131,7 @@
                 android:id="@+id/tvTimer"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="#1B1B2F"
+                android:textColor="@color/ink"
                 android:textSize="16sp"
                 android:textStyle="bold" />
         </LinearLayout>
@@ -151,6 +160,7 @@
 
             <LinearLayout
                 style="@style/Card"
+            android:background="@drawable/card_flat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
@@ -165,7 +175,7 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:textColor="#1B1B2F"
+                        android:textColor="@color/ink"
                         android:textSize="16sp" />
 
                     <TextView
@@ -225,7 +235,7 @@
                 style="@style/SectionSub"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="#1B1B2F" />
+                android:textColor="@color/ink" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -388,4 +398,5 @@
                 android:text="Selesai" />
         </LinearLayout>
     </ScrollView>
+</FrameLayout>
 </FrameLayout>

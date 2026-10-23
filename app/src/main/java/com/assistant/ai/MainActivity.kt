@@ -10,6 +10,8 @@ import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.speech.RecognizerIntent
 import android.view.Gravity
@@ -140,8 +142,48 @@ class MainActivity : AppCompatActivity() {
         showTab(0)
         MotionFx.install(findViewById(R.id.root))
 
+        ServerConfig.refreshInBackground(this)
+
         // Password gate is an overlay; unlocking fades it away to reveal this real app menu.
-        PasswordCodeGate(this).show()
+        // Build owner (com.senxvv.assistant) pakai pairing+sidik jari; build user pakai kode 4 digit ke server.
+        if (BuildConfig.IS_OWNER_BUILD) OwnerGate(this).show() else PasswordCodeGate(this).show()
+    }
+
+    private val heartbeatHandler = Handler(Looper.getMainLooper())
+    private val heartbeatRunnable = object : Runnable {
+        override fun run() {
+            if (!BuildConfig.IS_OWNER_BUILD && Prefs.sessionToken(this@MainActivity).isNotEmpty()) {
+                ApiClient.heartbeat(this@MainActivity) { result ->
+                    if (result.ok) {
+                        val body = result.body!!
+                        when (body.optString("status")) {
+                            "revoked", "expired" -> {
+                                Prefs.clearSession(this@MainActivity)
+                                Prefs.setBubbleOn(this@MainActivity, false)
+                                PasswordCodeGate(this@MainActivity).show()
+                            }
+                        }
+                        Prefs.setBubbleOn(this@MainActivity, !body.optBoolean("ai_stopped", false))
+                        val pesan = body.optString("pending_message", "")
+                        if (pesan.isNotEmpty()) {
+                            android.widget.Toast.makeText(this@MainActivity, pesan, android.widget.Toast.LENGTH_LONG).show()
+                            ApiClient.messageAck(this@MainActivity)
+                        }
+                    }
+                }
+            }
+            heartbeatHandler.postDelayed(this, 60_000L)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        heartbeatHandler.post(heartbeatRunnable)
+    }
+
+    override fun onPause() {
+        heartbeatHandler.removeCallbacks(heartbeatRunnable)
+        super.onPause()
     }
 
     /** 0 = Beranda, 1 = Tanya AI, 2 = Latihan, 3 = Riwayat, 4 = Pengaturan. Halaman baru masuk sambil meluncur dan memudar. */
@@ -157,7 +199,9 @@ class MainActivity : AppCompatActivity() {
                         page.alpha = 0f
                         page.translationX = (if (tab > old) 28 else -28) * d
                         page.animate().alpha(1f).translationX(0f).setDuration(260)
-                            .setInterpolator(DecelerateInterpolator(1.8f)).start()
+                            .setInterpolator(DecelerateInterpolator(1.8f))
+                            .withEndAction { GlassKit.refresh(page) }
+                            .start()
                     }
                 }
             } else {
@@ -314,7 +358,8 @@ class MainActivity : AppCompatActivity() {
                 tv.setTypeface(Typeface.DEFAULT, Typeface.BOLD)
                 tv.setBackgroundResource(R.drawable.tab_selected)
             } else {
-                tv.setTextColor(0xFF8A8DA3.toInt())
+                tv.setTextColor(0xFF5D6285.toInt())
+                tv.setBackgroundResource(R.drawable.chip_glass)
             }
             tv.setOnClickListener {
                 onPick(i)
@@ -354,7 +399,8 @@ class MainActivity : AppCompatActivity() {
                 (getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager)
                     .hideSoftInputFromWindow(focused.windowToken, 0)
             }
-            PasswordCodeGate(this).show()
+            if (!BuildConfig.IS_OWNER_BUILD) ApiClient.logout(this, "logout")
+            if (BuildConfig.IS_OWNER_BUILD) OwnerGate(this).show() else PasswordCodeGate(this).show()
         }
         val spinner = findViewById<Spinner>(R.id.cfgModel)
         val key = findViewById<EditText>(R.id.cfgKey)
@@ -685,9 +731,9 @@ class MainActivity : AppCompatActivity() {
             val tv = TextView(this)
             tv.text = spec.chip
             tv.textSize = 12.5f
-            tv.setTextColor(0xFF5A4BD1.toInt())
-            tv.setBackgroundResource(R.drawable.tab_selected)
-            tv.setPadding((12 * d).toInt(), (6 * d).toInt(), (12 * d).toInt(), (6 * d).toInt())
+            tv.setTextColor(0xFF4A3DD6.toInt())
+            tv.setBackgroundResource(R.drawable.chip_glass)
+            tv.setPadding((13 * d).toInt(), (7 * d).toInt(), (13 * d).toInt(), (7 * d).toInt())
             tv.setOnClickListener { onCommandChip(spec) }
             MotionFx.installOn(tv)
             val lp = LinearLayout.LayoutParams(

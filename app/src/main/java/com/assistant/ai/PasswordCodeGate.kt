@@ -43,10 +43,6 @@ internal class PasswordCodeGate(private val activity: AppCompatActivity) {
             isClickable = true
             isFocusable = true
             isFocusableInTouchMode = true
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                intArrayOf(Color.rgb(250, 252, 255), Color.rgb(239, 243, 251), Color.rgb(250, 251, 255))
-            )
             setOnKeyListener { _, keyCode, event ->
                 if (event.action != KeyEvent.ACTION_UP || unlocking) return@setOnKeyListener false
                 when (keyCode) {
@@ -60,9 +56,10 @@ internal class PasswordCodeGate(private val activity: AppCompatActivity) {
                 }
             }
         }
-        addSoftGlow(overlay, 250, 0x3CAFCBFF, Gravity.TOP or Gravity.START, -95, -100)
-        addSoftGlow(overlay, 245, 0x32D7BFFF, Gravity.BOTTOM or Gravity.END, -100, -92)
-        addSoftGlow(overlay, 210, 0x30C9B8FF, Gravity.TOP or Gravity.END, -112, 125)
+        // Latar aurora yang sama dengan menu utama, jadi kaca di layar kunci ikut menembus warna yang sama.
+        overlay.addView(AuroraBackground(activity), FrameLayout.LayoutParams(
+            ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT
+        ))
 
         val scroll = ScrollView(activity).apply {
             isFillViewport = true
@@ -117,29 +114,16 @@ internal class PasswordCodeGate(private val activity: AppCompatActivity) {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
             setPadding(dp(22), dp(23), dp(22), dp(19))
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                intArrayOf(0xF8FFFFFF.toInt(), 0xECFFFFFF.toInt(), 0xF4FFFFFF.toInt())
-            ).apply {
-                cornerRadius = dp(32).toFloat()
-                setStroke(dp(1), 0xFFFDFEFF.toInt())
-            }
-            elevation = dp(16).toFloat()
-            clipToOutline = true
+            background = GlassDrawable(
+                floatArrayOf(32f, 32f, 32f, 32f), 0x99FFFFFF.toInt(), 0x73FFFFFF, 0, 0, true
+            )
         }
         stage.addView(panel, LinearLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT
         ))
 
         val orb = FrameLayout(activity).apply {
-            background = GradientDrawable(
-                GradientDrawable.Orientation.TL_BR,
-                intArrayOf(Color.WHITE, 0xFFE0E9FA.toInt())
-            ).apply {
-                cornerRadius = dp(25).toFloat()
-                setStroke(dp(1), 0xFFFFFFFF.toInt())
-            }
-            elevation = dp(5).toFloat()
+            background = GlassPillDrawable()
         }
         orb.addView(LockGlyphView(activity), FrameLayout.LayoutParams(dp(34), dp(34), Gravity.CENTER))
         panel.addView(orb, LinearLayout.LayoutParams(dp(70), dp(70)).apply { bottomMargin = dp(15) })
@@ -310,11 +294,40 @@ internal class PasswordCodeGate(private val activity: AppCompatActivity) {
 
     private fun checkCode() {
         if (unlocking || entered.length != 4) return
-        if (entered.toString() == "2580") {
-            unlock()
-            return
+        val code = entered.toString()
+        message.text = "Memeriksa..."
+        message.setTextColor(0xFF788197.toInt())
+        keypad.isEnabled = false
+        ApiClient.verify(activity, code) { result ->
+            keypad.isEnabled = true
+            if (result.ok) {
+                val body = result.body!!
+                Prefs.setSession(
+                    activity,
+                    body.optString("session_token"),
+                    body.optString("ptype"),
+                    if (body.isNull("expires_at")) null else body.optLong("expires_at") * 1000L
+                )
+                unlock()
+            } else {
+                showFail(failMessage(result))
+            }
         }
-        message.text = "Kode tidak benar. Coba lagi."
+    }
+
+    private fun failMessage(result: ApiResult): String = when {
+        result.httpCode == 0 -> "Tidak bisa terhubung ke server. Cek koneksi internet."
+        result.httpCode == 423 -> {
+            val sisa = result.body?.optInt("retry_after", 0) ?: 0
+            "Terlalu banyak salah. Coba lagi dalam ${(sisa / 60) + 1} menit."
+        }
+        result.httpCode == 403 -> "Kode ini sudah terpakai di perangkat lain."
+        result.httpCode == 401 -> "Kode tidak benar atau sudah tidak berlaku."
+        else -> "Gagal memeriksa kode. Coba lagi."
+    }
+
+    private fun showFail(text: String) {
+        message.text = text
         message.setTextColor(0xFFC83F59.toInt())
         ObjectAnimator.ofFloat(panel, "translationX", 0f, -dp(6).toFloat(), dp(6).toFloat(), -dp(4).toFloat(), dp(4).toFloat(), 0f)
             .setDuration(340L).start()
@@ -326,7 +339,7 @@ internal class PasswordCodeGate(private val activity: AppCompatActivity) {
                 resetMessage()
             }
         }
-        handler.postDelayed(resetRunnable!!, 700L)
+        handler.postDelayed(resetRunnable!!, 900L)
     }
 
     private fun resetMessage() {
@@ -362,15 +375,17 @@ internal class PasswordCodeGate(private val activity: AppCompatActivity) {
     }
 
     private fun keyBackground(utility: Boolean): RippleDrawable {
-        val shape = GradientDrawable(
-            GradientDrawable.Orientation.TL_BR,
-            if (utility) intArrayOf(0xF5FFFFFF.toInt(), 0xDDEAF7FA.toInt())
-            else intArrayOf(0xF5FFFFFF.toInt(), 0xDDE9EEF9.toInt())
-        ).apply {
-            cornerRadius = dp(18).toFloat()
-            setStroke(dp(1), 0xFFFDFEFF.toInt())
+        // Tiap tombol adalah kaca kecil yang ikut mengaburkan aurora di belakangnya.
+        val glass = if (utility) {
+            GlassDrawable(floatArrayOf(40f, 40f, 40f, 40f), 0x4DFFFFFF, 0x33FFFFFF, 0, 0, false)
+        } else {
+            GlassPillDrawable()
         }
-        return RippleDrawable(ColorStateList.valueOf(0x55AEC7F5), shape, null)
+        val mask = GradientDrawable().apply {
+            cornerRadius = dp(27).toFloat()
+            setColor(Color.WHITE)
+        }
+        return RippleDrawable(ColorStateList.valueOf(0x55AEC7F5), glass, mask)
     }
 
     private fun addSoftGlow(host: FrameLayout, sizeDp: Int, color: Int, gravity: Int, xDp: Int, yDp: Int) {
