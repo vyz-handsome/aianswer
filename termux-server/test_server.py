@@ -24,7 +24,7 @@ def main():
     S.BUILD_DIR = os.path.join(tmp, "build")
     S.KEYSTORE = os.path.join(tmp, "k.jks")
     S.KS_PASS_FILE = os.path.join(tmp, "ks.pass")
-    S.CFG = {"port": 18787, "owner_id": 1, "bot_token": "x", "gist_token": "y", "package_prefix": "com.assistant.u"}
+    S.CFG = {"port": 18787, "owner_id": 1, "bot_token": "x", "gist_token": "y", "package_prefix": "com.senxuser."}
     sent = []
     S.notify = lambda text, markup=None: sent.append(text)
     S.send_doc = lambda path, filename, caption: sent.append("DOC " + filename) or True
@@ -74,7 +74,7 @@ def main():
     g = post("/v1/owner/generate", {"app_name": "Buku Pintar", "package": "", "kind": "once"}, H)
     assert g["ok"], g
     a1 = g["app"]
-    assert a1["package"].startswith("com.assistant.u") and len(a1["code"]) == 4
+    assert a1["package"].startswith("com.senxuser.") and a1["package"].split(".")[-1][0].isalpha() and len(a1["code"]) == 4
     assert not post("/v1/owner/generate", {"app_name": "X", "package": "com.assistant.ai", "kind": "perm"}, H)["ok"] \
         if False else True
     for _ in range(50):

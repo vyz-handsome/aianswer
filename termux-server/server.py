@@ -74,7 +74,7 @@ def load_config():
         c = json.load(f)
     c.setdefault("port", 8787)
     c.setdefault("tunnel_cmd", "cloudflared tunnel --no-autoupdate --url http://127.0.0.1:{port}")
-    c.setdefault("package_prefix", "com.assistant.u")
+    c.setdefault("package_prefix", "com.senxuser.")
     c["owner_id"] = int(c["owner_id"])
     for k in ("bot_token", "gist_token"):
         if not c.get(k):
@@ -286,7 +286,8 @@ def app_public(a, now=None):
 
 def gen_package(app_name):
     for _ in range(50):
-        p = "%s%s" % (CFG["package_prefix"], secrets.token_hex(4))
+        # segmen package harus diawali huruf: huruf a-f + 7 hex acak
+        p = "%s%s%s" % (CFG["package_prefix"], secrets.choice("abcdef"), secrets.token_hex(4)[:7])
         if not q1("SELECT 1 FROM apps WHERE package=? AND status!='deleted'", (p,)):
             return p
     raise RuntimeError("gagal membuat package unik")
@@ -308,7 +309,7 @@ def create_app(app_name, package, kind, duration_sec):
         package = gen_package(app_name)
     if not PKG_RE.match(package) or len(package) > 80:
         raise ValueError("Package name tidak valid (contoh: com.contoh.app).")
-    if package == apkpatch.OLD_PACKAGE or package.startswith(apkpatch.OLD_PACKAGE + "."):
+    if package in (apkpatch.OLD_PACKAGE, apkpatch.NAMESPACE) or package.startswith(apkpatch.OLD_PACKAGE + "."):
         raise ValueError("Package tidak boleh sama dengan app owner.")
     if q1("SELECT 1 FROM apps WHERE package=? AND status!='deleted'", (package,)):
         raise ValueError("Package itu sudah dipakai app lain.")

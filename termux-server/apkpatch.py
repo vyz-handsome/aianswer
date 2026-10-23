@@ -19,7 +19,10 @@ import subprocess
 import sys
 import zipfile
 
-OLD_PACKAGE = "com.assistant.ai"
+# applicationId app owner (= atribut package di manifest hasil build).
+OLD_PACKAGE = "com.senxvv.assistant"
+# namespace kode (nama class tetap com.assistant.ai.*, tidak ikut diganti).
+NAMESPACE = "com.assistant.ai"
 OLD_LABEL = "Assistant"
 MODE_OWNER = "assistant_mode_owner"
 MODE_USER = "assistant_mode_user"
@@ -147,7 +150,6 @@ def build_pool(pool):
 # AndroidManifest.xml biner
 # --------------------------------------------------------------------------------------
 
-_CLASS_RE = re.compile(r"^" + re.escape(OLD_PACKAGE) + r"\.[A-Z][A-Za-z0-9_$.]*$")
 
 
 def patch_manifest(data, package, label, mode, discovery):
@@ -169,7 +171,7 @@ def patch_manifest(data, package, label, mode, discovery):
         t = s
         if s.startswith(".") and len(s) > 1 and " " not in s:
             # nama relatif (.MainActivity) harus tetap menunjuk ke class lama
-            t = OLD_PACKAGE + s
+            t = NAMESPACE + s
             report["relative"] += 1
         elif s == OLD_PACKAGE:
             t = package
@@ -184,12 +186,9 @@ def patch_manifest(data, package, label, mode, discovery):
             t = discovery
             report["discovery"] += 1
         elif OLD_PACKAGE in s:
-            if _CLASS_RE.match(s) and not s.endswith("_PERMISSION"):
-                t = s  # nama class tetap
-            else:
-                # authority provider / permission kustom ikut package baru (hindari bentrok dengan app owner)
-                t = s.replace(OLD_PACKAGE, package)
-                report["other"].append((s, t))
+            # authority provider / permission kustom ikut package baru (hindari bentrok dengan app owner)
+            t = s.replace(OLD_PACKAGE, package)
+            report["other"].append((s, t))
         new.append(t)
     pool.strings = new
     body = build_pool(pool) + rest

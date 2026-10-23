@@ -5,7 +5,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.assistant.ai"
+        applicationId = "com.senxvv.assistant"
         minSdk = 26
         targetSdk = 36
         versionCode = 27

@@ -19,8 +19,8 @@ def make_manifest(utf8):
         ap.OLD_PACKAGE, ".MainActivity", ".Launcher_n0_c0", ap.OLD_LABEL,
         "assistant.mode", ap.MODE_OWNER, ap.DISCOVERY_PLACEHOLDER,
         "com.assistant.ai.OverlayService",
-        "com.assistant.ai.androidx-startup",
-        "com.assistant.ai.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
+        ap.OLD_PACKAGE + ".androidx-startup",
+        ap.OLD_PACKAGE + ".DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION",
         "android.permission.INTERNET",
         "Ünïcode ✓ label",
     ]

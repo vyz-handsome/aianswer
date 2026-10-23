@@ -9,6 +9,7 @@
 - **Aktivitas** yang terlihat owner: online/offline, terakhir aktif, versi app, info HP (Android ID, merek/model, versi Android), jumlah dan log pemakaian AI.
 - **Kontrol jarak jauh**: Stop AI, sembunyikan/munculkan bubble, kirim pesan, ubah pengaturan (model, mode akurat, fallback), kunci paksa, cabut akses, reset kunci HP, hapus.
 - **Server Termux** di folder `termux-server/` (Python + SQLite + bot Telegram + Cloudflare Tunnel, URL otomatis dipublish ke Gist). Lihat `termux-server/README.md`.
+- Package: app owner `com.senxvv.assistant`, app user `com.senxuser.<kode acak>` (atau package custom saat generate).
 - Mode app (owner/user) dibaca dari meta-data manifest `assistant.mode`; satu APK yang sama dipakai sebagai template.
 
 # Assistant — v0.26.2
