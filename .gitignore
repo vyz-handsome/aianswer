@@ -10,3 +10,6 @@ captures/
 termux-server/config.json
 termux-server/data/
 termux-server/__pycache__/
+
+node_modules/
+termux-server/wa-bot/node_modules/

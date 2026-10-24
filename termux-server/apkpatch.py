@@ -286,11 +286,18 @@ def sign_apk(unsigned, signed, keystore, ks_pass_file, alias="assistant"):
     tool = find_apksigner()
     if not tool:
         raise PatchError("apksigner tidak ditemukan. Jalankan: pkg install apksigner")
+    # apksigner membaca file "file:" satu baris per permintaan, jadi pakai env supaya
+    # password keystore dan password key bisa dibaca dari satu sumber.
+    with open(ks_pass_file, "r", encoding="utf-8") as f:
+        password = f.readline().strip()
+    if not password:
+        raise PatchError("file password keystore kosong: " + ks_pass_file)
+    env = dict(os.environ, ASSISTANT_KS_PASS=password)
     cmd = [tool, "sign", "--ks", keystore, "--ks-key-alias", alias,
-           "--ks-pass", "file:" + ks_pass_file, "--key-pass", "file:" + ks_pass_file,
+           "--ks-pass", "env:ASSISTANT_KS_PASS", "--key-pass", "env:ASSISTANT_KS_PASS",
            "--v1-signing-enabled", "false", "--v2-signing-enabled", "true", "--v3-signing-enabled", "true",
            "--out", signed, unsigned]
-    r = subprocess.run(cmd, capture_output=True, text=True, timeout=180)
+    r = subprocess.run(cmd, capture_output=True, text=True, timeout=180, env=env)
     if r.returncode != 0:
         raise PatchError("apksigner gagal: " + (r.stderr or r.stdout).strip()[:400])
     try:

@@ -14,6 +14,7 @@ import logging.handlers
 import os
 import re
 import secrets
+import shutil
 import signal
 import sqlite3
 import subprocess
@@ -141,7 +142,7 @@ CREATE TABLE IF NOT EXISTS commands(
   id INTEGER PRIMARY KEY AUTOINCREMENT, app_id INTEGER, ts REAL, type TEXT, payload TEXT, delivered INTEGER DEFAULT 0
 );
 CREATE TABLE IF NOT EXISTS fails(key TEXT PRIMARY KEY, count INTEGER, locked_until REAL, ts REAL);
-CREATE TABLE IF NOT EXISTS owner_tokens(hash TEXT PRIMARY KEY, name TEXT, created_at REAL);
+CREATE TABLE IF NOT EXISTS owner_tokens(hash TEXT PRIMARY KEY, name TEXT, created_at REAL, android_id TEXT);
 CREATE TABLE IF NOT EXISTS pair_codes(code TEXT PRIMARY KEY, expires REAL);
 """
 
@@ -161,6 +162,10 @@ def db():
 def init_db():
     c = db()
     c.executescript(SCHEMA)
+    try:
+        c.execute("ALTER TABLE owner_tokens ADD COLUMN android_id TEXT")  # database lama
+    except sqlite3.OperationalError:
+        pass
 
 
 def q(sql, args=()):
@@ -327,11 +332,11 @@ def create_app(app_name, package, kind, duration_sec):
 _build_lock = threading.Lock()
 
 
-def build_and_send(app_id, send=True):
-    """Patch + sign APK lalu kirim ke Telegram owner. Jalan di thread sendiri."""
+def build_apk(app_id):
+    """Patch + tanda tangan APK untuk satu app. Return path file APK. Raise kalau gagal."""
     a = q1("SELECT * FROM apps WHERE id=?", (app_id,))
     if not a:
-        return
+        raise apkpatch.PatchError("App tidak ditemukan.")
     ex("UPDATE apps SET build_status='building' WHERE id=?", (app_id,))
     try:
         if not os.path.isfile(TEMPLATE_PATH):
@@ -346,13 +351,28 @@ def build_and_send(app_id, send=True):
                                     KEYSTORE, KS_PASS_FILE, os.path.join(BUILD_DIR, "tmp_%d" % app_id))
         ex("UPDATE apps SET build_status='ok' WHERE id=?", (app_id,))
         add_event(app_id, "built", None)
-        if send:
-            safe = re.sub(r"[^A-Za-z0-9_.-]+", "_", a["app_name"]).strip("_") or "app"
-            cap = "%s\nPackage: %s\nKode: %s\nJenis: %s" % (a["app_name"], a["package"], a["code"], kind_label(a))
-            send_doc(out, safe + ".apk", cap)
+        return out
     except Exception as e:
         log.error("build app %s gagal: %s\n%s", app_id, e, traceback.format_exc())
         ex("UPDATE apps SET build_status=? WHERE id=?", ("error: %s" % str(e)[:200], app_id))
+        raise
+
+
+def apk_filename(a):
+    return (re.sub(r"[^A-Za-z0-9_.-]+", "_", a["app_name"]).strip("_") or "app") + ".apk"
+
+
+def build_and_send(app_id, send=True):
+    """Build APK lalu kirim ke Telegram owner. Jalan di thread sendiri."""
+    a = q1("SELECT * FROM apps WHERE id=?", (app_id,))
+    if not a:
+        return
+    try:
+        out = build_apk(app_id)
+        if send:
+            cap = "%s\nPackage: %s\nKode: %s\nJenis: %s" % (a["app_name"], a["package"], a["code"], kind_label(a))
+            send_doc(out, apk_filename(a), cap)
+    except Exception as e:
         notify("Build APK #%d gagal: %s" % (app_id, e))
 
 
@@ -436,11 +456,18 @@ def handle_login(body, ip):
         return {"ok": False, "error": "Terlalu banyak salah. Coba lagi dalam %d menit." % ((wait + 59) // 60),
                 "retry_after": wait}
     a = q1("SELECT * FROM apps WHERE package=? AND status!='deleted'", (package,))
-    if not a or not hmac.compare_digest(a["code"].encode(), code.encode()):
+    if not a:
+        # APK yang package-nya tidak dikenal server (app dihapus / APK lama): bukan salah ketik kode,
+        # jadi tidak dihitung ke kunci HP. Hanya batas IP yang jalan.
+        _fail_register(ip_key, IP_LOCK_AFTER_FAILS, now)
+        notify("Login ditolak: package tidak dikenal server: %s (HP %s %s). APK itu bukan hasil generate yang aktif."
+               % (package[:60], body.get("brand", ""), body.get("model", "")))
+        return {"ok": False, "error": "APK ini tidak dikenal server (app sudah dihapus atau APK lama). Minta APK baru ke owner."}
+    if not hmac.compare_digest(a["code"].encode(), code.encode()):
         locked1, left1 = _fail_register(dev_key, LOCK_AFTER_FAILS, now)
         _fail_register(ip_key, IP_LOCK_AFTER_FAILS, now)
         if a:
-            add_event(a["id"], "login_fail", {"android_id": android_id})
+            add_event(a["id"], "login_fail", {"android_id": android_id, "package": package})
         if locked1:
             notify("Kode salah %dx dari satu HP (ID %s), dikunci 15 menit.%s" % (
                 LOCK_AFTER_FAILS, android_id[:8], (" App: %s" % a["app_name"]) if a else ""))
@@ -554,9 +581,11 @@ def handle_logout(body):
 
 def owner_ok(headers):
     tok = headers.get("X-Owner-Token", "")
-    if not tok:
+    dev = headers.get("X-Device-Id", "")
+    if not tok or not dev:
         return False
-    return q1("SELECT 1 FROM owner_tokens WHERE hash=?", (sha(tok),)) is not None
+    # token hanya sah dari HP yang diaktivasi (ID perangkat harus sama)
+    return q1("SELECT 1 FROM owner_tokens WHERE hash=? AND android_id=?", (sha(tok), dev)) is not None
 
 
 def new_pair_code():
@@ -580,10 +609,17 @@ def handle_pair(body, ip):
     if not r:
         _fail_register("pair:" + ip, 8, now)
         return {"ok": False, "error": "Kode pairing salah atau kedaluwarsa. Kirim /pair lagi ke bot."}
+    dev = str(body.get("android_id", ""))[:64]
+    if not dev:
+        return {"ok": False, "error": "ID perangkat tidak terbaca."}
     ex("DELETE FROM pair_codes WHERE code=?", (code,))
     token = secrets.token_urlsafe(40)
-    ex("INSERT INTO owner_tokens(hash,name,created_at) VALUES(?,?,?)", (sha(token), str(body.get("name", ""))[:40], now))
-    notify("App owner berhasil dipasangkan: %s" % str(body.get("name", ""))[:40])
+    had = q1("SELECT COUNT(*) AS n FROM owner_tokens")["n"]
+    ex("DELETE FROM owner_tokens")  # hanya satu HP owner: aktivasi baru mencabut yang lama
+    ex("INSERT INTO owner_tokens(hash,name,created_at,android_id) VALUES(?,?,?,?)",
+       (sha(token), str(body.get("name", ""))[:40], now, dev))
+    notify("App owner diaktivasi di: %s (ID %s).%s" % (
+        str(body.get("name", ""))[:40], dev[:8], " Aktivasi HP sebelumnya dicabut." if had else ""))
     return {"ok": True, "token": token}
 
 
@@ -680,6 +716,21 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(data)
 
+    def _internal(self, path, body):
+        """Hanya untuk jembatan WhatsApp lokal: dari loopback, bukan dari tunnel, dan membawa rahasia proses."""
+        via_tunnel = any(k.lower().startswith(("cf-", "x-forwarded")) for k in self.headers.keys())
+        if (self.client_address[0] not in ("127.0.0.1", "::1") or via_tunnel
+                or not hmac.compare_digest(self.headers.get("X-Internal", ""), WA_SECRET)):
+            self._send(403, {"ok": False, "error": "ditolak"})
+            return
+        if path == "/internal/wa/command":
+            self._send(200, {"ok": True, "items": wa_handle(str(body.get("text", ""))[:2000])})
+        elif path == "/internal/wa/notify":
+            notify(str(body.get("text", ""))[:3000])
+            self._send(200, {"ok": True})
+        else:
+            self._send(404, {"ok": False})
+
     def do_GET(self):
         if self.path.startswith("/health"):
             self._send(200, {"ok": True, "t": time.time()})
@@ -705,6 +756,9 @@ class Handler(BaseHTTPRequestHandler):
                     self._send(400, {"ok": False, "error": "JSON tidak valid."})
                     return
             ip = self._ip()
+            if path.startswith("/internal/"):
+                self._internal(path, body)
+                return
             if path == "/v1/login":
                 self._send(200, handle_login(body, ip))
             elif path == "/v1/heartbeat":
@@ -893,6 +947,8 @@ HELP = (
     "/pair - kode untuk memasangkan app owner\n"
     "/status - status server\n"
     "/url - alamat server sekarang\n"
+    "/unlock - buka kunci semua HP yang kena ban salah kode\n"
+    "/owner_reset - cabut aktivasi app owner (harus /pair lagi)\n"
     "/info ID /stop ID /revoke ID /reset ID /pesan ID teks"
 )
 
@@ -937,7 +993,8 @@ def app_buttons(aid):
         [("⏹ Stop AI", "c:%d:stop_ai" % aid), ("🙈 Sembunyikan", "c:%d:hide_bubble" % aid), ("👁 Munculkan", "c:%d:show_bubble" % aid)],
         [("💬 Pesan", "m:%d" % aid), ("⚙️ Setting", "s:%d" % aid), ("🔒 Kunci paksa", "c:%d:lock" % aid)],
         [("📜 Log", "l:%d" % aid), ("♻️ Reset HP", "k:%d:reset" % aid), ("🚫 Cabut", "k:%d:revoke" % aid)],
-        [("📦 Kirim ulang APK", "c:%d:resend" % aid), ("🗑 Hapus", "k:%d:delete" % aid)],
+        [("📦 Kirim ulang APK", "c:%d:resend" % aid), ("🔓 Buka kunci", "u")],
+        [("🗑 Hapus", "k:%d:delete" % aid)],
         [("🔄 Muat ulang", "a:%d" % aid), ("⬅ Daftar", "list")],
     ])
 
@@ -1021,6 +1078,9 @@ def handle_callback(cb):
     k = parts[0]
     if k == "list":
         send_list()
+    elif k == "u":
+        ex("DELETE FROM fails")
+        notify("Semua kunci salah-kode dibuka.")
     elif k == "a":
         send_card(int(parts[1]))
     elif k == "c":
@@ -1129,6 +1189,12 @@ def handle_message(msg):
                 notify("Nama app? (contoh: Buku Pintar). /batal untuk batal.")
         elif cmd == "/list":
             send_list()
+        elif cmd == "/owner_reset":
+            ex("DELETE FROM owner_tokens")
+            notify("Aktivasi app owner dicabut. Kirim /pair untuk mengaktifkan lagi.")
+        elif cmd == "/unlock":
+            ex("DELETE FROM fails")
+            notify("Semua kunci salah-kode dibuka.")
         elif cmd == "/pair":
             if not state_get("discovery_url"):
                 notify("Server belum selesai menyiapkan alamat discovery. Coba lagi sebentar.")
@@ -1217,6 +1283,223 @@ def run_bot():
             backoff = min(backoff * 2, 60)
 
 
+
+# --------------------------------------------------------------------------------------
+# Bot WhatsApp (jembatan Baileys di wa-bot/): perintah teks dari chat ke diri sendiri
+# --------------------------------------------------------------------------------------
+
+WA_SECRET = secrets.token_hex(16)
+_wa_proc = None
+
+WA_HELP = (
+    "*Perintah bot Assistant*\n"
+    "/generate Nama|package|jenis|durasi  (jenis: permanen, sekali, waktu; durasi: 90m, 5j, 2d)\n"
+    "/list\n"
+    "/info ID, /log ID\n"
+    "/stop ID, /hide ID, /show ID, /lock ID\n"
+    "/pesan ID teks\n"
+    "/model ID id_model, /akurat ID on|off, /fallback ID on|off\n"
+    "/revoke ID ya, /reset ID ya, /delete ID ya\n"
+    "/resend ID (kirim ulang APK)\n"
+    "/unlock, /status, /url, /pair, /owner_reset ya"
+)
+
+
+def wa_text(t):
+    return {"type": "text", "text": t}
+
+
+def wa_table(title, header, rows, head_text="", footer=""):
+    return {"type": "table", "title": title, "header": header, "rows": rows, "headerText": head_text, "footer": footer}
+
+
+def wa_doc(a, path):
+    cap = "%s\nKode: %s\nJenis: %s" % (a["app_name"], a["code"], kind_label(a))
+    return {"type": "document", "path": path, "filename": apk_filename(a), "caption": cap}
+
+
+def _status_id(a, now):
+    p = app_public(a, now)
+    st = {"unused": "belum dipakai", "active": "aktif", "ended": "selesai", "revoked": "dicabut",
+          "expired": "kedaluwarsa"}.get(p["status"], p["status"])
+    return p, st
+
+
+def wa_handle(text):
+    text = (text or "").strip()
+    if not text.startswith("/"):
+        return [wa_text("Kirim /help untuk daftar perintah.")]
+    cmd, _, rest = text.partition(" ")
+    cmd = cmd.lower().split("@")[0]
+    rest = rest.strip()
+    now = time.time()
+    try:
+        if cmd in ("/help", "/start"):
+            return [wa_text(WA_HELP)]
+        if cmd == "/status":
+            rows = q("SELECT * FROM apps WHERE status!='deleted'")
+            online = sum(1 for r in rows if app_public(r, now)["online"])
+            return [wa_text("Server hidup.\nURL: %s\nApp user: %d (online %d)\nTemplate: %s" % (
+                state_get("tunnel_url"), len(rows), online, "ada" if os.path.isfile(TEMPLATE_PATH) else "BELUM ADA"))]
+        if cmd == "/url":
+            return [wa_text("URL: %s\nDiscovery: %s" % (state_get("tunnel_url"), state_get("discovery_url")))]
+        if cmd == "/unlock":
+            ex("DELETE FROM fails")
+            return [wa_text("Semua kunci salah-kode dibuka.")]
+        if cmd == "/pair":
+            if not state_get("discovery_url"):
+                return [wa_text("Alamat discovery belum siap. Coba lagi sebentar.")]
+            return [wa_text("Tempel teks ini di app owner (berlaku 10 menit, sekali pakai):\n\n" + pair_string(new_pair_code()))]
+        if cmd == "/owner_reset":
+            if rest.lower() != "ya":
+                return [wa_text("Ini mencabut aktivasi app owner. Ketik: /owner_reset ya")]
+            ex("DELETE FROM owner_tokens")
+            return [wa_text("Aktivasi app owner dicabut. Kirim /pair untuk mengaktifkan lagi.")]
+        if cmd == "/list":
+            rows = q("SELECT * FROM apps WHERE status!='deleted' ORDER BY id DESC LIMIT 40")
+            if not rows:
+                return [wa_text("Belum ada app user. Ketik /generate.")]
+            table = []
+            for a in rows:
+                p, st = _status_id(a, now)
+                table.append([str(p["id"]), p["app_name"], st, "online" if p["online"] else "offline", p["code"], "%dx" % p["ai_count"]])
+            return [wa_table("App user", ["ID", "Nama", "Status", "Koneksi", "Kode", "AI"], table, "Daftar app user:", "Detail: /info ID")]
+        if cmd == "/generate":
+            if not rest:
+                return [wa_text("Format: /generate Nama|package|jenis|durasi\nContoh: /generate Buku Pintar|-|waktu|2d\n"
+                                "Jenis: permanen, sekali, waktu. Package \"-\" = otomatis.")]
+            parts = [x.strip() for x in rest.split("|")]
+            name = parts[0]
+            pkg = parts[1] if len(parts) > 1 else "-"
+            kind = {"perm": "perm", "permanen": "perm", "once": "once", "sekali": "once",
+                    "timed": "timed", "waktu": "timed"}.get(parts[2].lower()) if len(parts) > 2 else None
+            if kind is None:
+                return [wa_text("Jenis wajib diisi: permanen, sekali, atau waktu.\nContoh: /generate %s|-|permanen" % name)]
+            dur = 0
+            if kind == "timed":
+                dur = parse_duration(parts[3]) if len(parts) > 3 else None
+                if not dur:
+                    return [wa_text("Durasi wajib untuk jenis waktu. Contoh: 90m, 5j, 2d.")]
+            a = create_app(name, pkg, kind, dur)
+            try:
+                path = build_apk(a["id"])
+            except Exception as e:
+                return [wa_text("App #%d dibuat (kode %s) tetapi APK gagal dibuat: %s\nCoba /resend %d setelah masalahnya beres." % (
+                    a["id"], a["code"], e, a["id"]))]
+            notify("App #%d \"%s\" dibuat lewat WhatsApp (kode %s)." % (a["id"], a["app_name"], a["code"]))
+            return [wa_text("Dibuat: #%d %s\nPackage: %s\nKode: %s\nJenis: %s\n\nTeruskan file APK di bawah ke temanmu." % (
+                a["id"], a["app_name"], a["package"], a["code"], kind_label(a))), wa_doc(a, path)]
+
+        # perintah di bawah ini butuh ID app
+        m = re.match(r"#?(\d+)\s*(.*)", rest, re.S)
+        if not m:
+            return [wa_text("Pakai: %s ID. Contoh: %s 3" % (cmd, cmd))]
+        aid, extra = int(m.group(1)), m.group(2).strip()
+        a = q1("SELECT * FROM apps WHERE id=? AND status!='deleted'", (aid,))
+        if not a:
+            return [wa_text("App #%d tidak ditemukan." % aid)]
+        if cmd == "/info":
+            p, st = _status_id(a, now)
+            rows = [["Nama", p["app_name"]], ["Package", p["package"]], ["Kode", p["code"]], ["Jenis", kind_label(a)],
+                    ["Status", st], ["Koneksi", "online" if p["online"] else "offline"],
+                    ["Terakhir aktif", fmt_ts(p["last_seen"])], ["Pemakaian AI", "%dx (terakhir %s)" % (p["ai_count"], fmt_ts(p["last_ai"]))]]
+            if p["expires_at"]:
+                rows.append(["Berakhir", fmt_ts(p["expires_at"])])
+            if p["android_id"]:
+                rows.append(["HP", "%s %s, Android %s" % (p["brand"], p["model"], p["android_version"])])
+                rows.append(["App", "v%s" % p["app_version"]])
+                rows.append(["Android ID", p["android_id"]])
+            if p["model_id"]:
+                rows.append(["Model AI", "%s, bubble %s" % (p["model_id"], "aktif" if p["bubble_on"] else "mati")])
+            if p["build_status"] != "ok":
+                rows.append(["Build APK", p["build_status"]])
+            return [wa_table("#%d %s" % (aid, p["app_name"]), ["Data", "Isi"], rows, "Detail app:", "Kontrol: /stop /hide /show /lock /pesan")]
+        if cmd == "/log":
+            ev = q("SELECT * FROM events WHERE app_id=? ORDER BY id DESC LIMIT 20", (aid,))
+            rows = [[fmt_ts(e["ts"]), e["type"], (json.dumps(json.loads(e["detail"]), ensure_ascii=False)[:60] if e["detail"] else "")] for e in ev]
+            if not rows:
+                return [wa_text("Belum ada log.")]
+            return [wa_table("Log #%d" % aid, ["Waktu", "Kejadian", "Detail"], rows)]
+        simple = {"/stop": "stop_ai", "/hide": "hide_bubble", "/show": "show_bubble", "/lock": "lock"}
+        if cmd in simple:
+            queue_command(aid, simple[cmd])
+            return [wa_text("Perintah \"%s\" dikirim ke %s. Jalan saat app online (maks sekitar 15 detik)." % (simple[cmd], a["app_name"]))]
+        if cmd == "/pesan":
+            if not extra:
+                return [wa_text("Pakai: /pesan ID teks")]
+            queue_command(aid, "message", {"text": extra[:500]})
+            return [wa_text("Pesan dikirim ke %s." % a["app_name"])]
+        if cmd == "/model":
+            if not extra:
+                return [wa_text("Model yang tersedia:\n" + "\n".join(MODEL_IDS) + "\n\nPakai: /model ID id_model")]
+            set_setting(aid, "model", extra)
+            return [wa_text("Model diganti ke %s (diterapkan saat app online)." % extra)]
+        if cmd in ("/akurat", "/fallback"):
+            if extra.lower() not in ("on", "off"):
+                return [wa_text("Pakai: %s ID on|off" % cmd)]
+            set_setting(aid, "accurate" if cmd == "/akurat" else "fallback", extra.lower() == "on")
+            return [wa_text("%s %s (diterapkan saat app online)." % (cmd[1:], extra.lower()))]
+        if cmd in ("/revoke", "/reset", "/delete"):
+            if extra.lower() != "ya":
+                return [wa_text("Yakin? Ketik: %s %d ya" % (cmd, aid))]
+            if cmd == "/revoke":
+                do_revoke(aid)
+                return [wa_text("Akses #%d dicabut." % aid)]
+            if cmd == "/reset":
+                do_reset_device(aid)
+                return [wa_text("Kunci HP #%d direset." % aid)]
+            do_delete(aid)
+            return [wa_text("App #%d dihapus dari daftar." % aid)]
+        if cmd == "/resend":
+            try:
+                path = build_apk(aid)
+            except Exception as e:
+                return [wa_text("Build APK gagal: %s" % e)]
+            return [wa_text("APK #%d (kode %s):" % (aid, a["code"])), wa_doc(a, path)]
+        return [wa_text("Perintah tidak dikenal. Kirim /help.")]
+    except ValueError as e:
+        return [wa_text("Gagal: %s" % e)]
+    except Exception as e:
+        log.error("wa_handle: %s\n%s", e, traceback.format_exc())
+        return [wa_text("Kesalahan server: %s" % e)]
+
+
+def stop_wa():
+    global _wa_proc
+    p, _wa_proc = _wa_proc, None
+    if p and p.poll() is None:
+        try:
+            p.terminate()
+            p.wait(timeout=8)
+        except Exception:
+            try:
+                p.kill()
+            except Exception:
+                pass
+
+
+def run_wa():
+    """Jalankan jembatan WhatsApp (Node) kalau diaktifkan; hidupkan ulang kalau mati."""
+    global _wa_proc
+    wa_dir = os.path.join(BASE, "wa-bot")
+    if not CFG.get("wa_enabled") or not CFG.get("wa_number"):
+        time.sleep(300)
+        return
+    node = shutil.which("node")
+    if not node or not os.path.isdir(os.path.join(wa_dir, "node_modules")):
+        log.warning("Bot WA aktif di config tapi node/node_modules belum ada. Jalankan: bash wa-setup.sh")
+        time.sleep(120)
+        return
+    env = dict(os.environ, WA_SECRET=WA_SECRET, WA_NUMBER=str(CFG["wa_number"]),
+               WA_API="http://127.0.0.1:%d" % CFG["port"], WA_AUTH=os.path.join(DATA, "wa-auth"))
+    with open(os.path.join(DATA, "wa.log"), "ab") as lf:
+        proc = subprocess.Popen([node, "index.mjs"], cwd=wa_dir, env=env, stdout=lf, stderr=subprocess.STDOUT)
+        _wa_proc = proc
+        log.info("Bot WA berjalan (pid %s)", proc.pid)
+        code = proc.wait()
+    log.warning("Bot WA berhenti (kode %s), dihidupkan ulang", code)
+    time.sleep(5)
+
 # --------------------------------------------------------------------------------------
 # Pengawas kedaluwarsa + bersih-bersih
 # --------------------------------------------------------------------------------------
@@ -1263,11 +1546,12 @@ def main():
     CFG = load_config()
     init_db()
     log.info("Assistant server mulai")
-    signal.signal(signal.SIGTERM, lambda *_: (stop_tunnel(), os._exit(0)))
+    signal.signal(signal.SIGTERM, lambda *_: (stop_wa(), stop_tunnel(), os._exit(0)))
     supervised("http", run_http)
     supervised("watch", run_watch)
     supervised("bot", run_bot)
     supervised("tunnel", run_tunnel)
+    supervised("wa", run_wa)
     notify("Server Assistant menyala.")
     try:
         while True:
@@ -1275,6 +1559,7 @@ def main():
     except KeyboardInterrupt:
         pass
     finally:
+        stop_wa()
         stop_tunnel()
 
 

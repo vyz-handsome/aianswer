@@ -25,7 +25,13 @@ import androidx.core.content.ContextCompat
  * Gerbang app owner: hanya sidik jari (BIOMETRIC_STRONG, tanpa PIN/pola/sandi HP sebagai cadangan).
  * Menutupi layar sampai sidik jari cocok; lalu memudar.
  */
-internal class FingerprintGate(private val activity: AppCompatActivity, private val onUnlocked: () -> Unit = {}) {
+internal class FingerprintGate(
+    private val activity: AppCompatActivity,
+    private val onUnlocked: () -> Unit = {},
+    /** true = setelah sidik jari cocok, server dicek dulu bahwa HP ini memang HP owner yang diaktivasi. */
+    private val verifyOwner: Boolean = false,
+    private val onNeedActivation: (String) -> Unit = {}
+) {
     companion object {
         /** Waktu terakhir sidik jari berhasil (elapsedRealtime), 0 = belum pernah. */
         @Volatile var lastAuth = 0L
@@ -179,7 +185,28 @@ internal class FingerprintGate(private val activity: AppCompatActivity, private 
             object : BiometricPrompt.AuthenticationCallback() {
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
                     prompting = false
-                    unlock()
+                    if (!verifyOwner) {
+                        unlock()
+                        return
+                    }
+                    message.text = "Memeriksa aktivasi..."
+                    message.setTextColor(0xFF737D92.toInt())
+                    retry.visibility = View.GONE
+                    Thread {
+                        val v = Remote.ownerVerify(activity)
+                        activity.runOnUiThread {
+                            if (done) return@runOnUiThread
+                            when {
+                                v.ok -> unlock()
+                                v.needActivation -> {
+                                    done = true
+                                    (overlay.parent as? ViewGroup)?.removeView(overlay)
+                                    onNeedActivation(v.message)
+                                }
+                                else -> problem(v.message, false)
+                            }
+                        }
+                    }.start()
                 }
 
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence) {

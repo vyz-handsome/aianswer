@@ -134,7 +134,7 @@ object Remote {
         }
     }
 
-    private fun http(url: String, body: JSONObject?, ownerToken: String?, file: File?): JSONObject {
+    private fun http(url: String, body: JSONObject?, ownerToken: String?, file: File?, deviceId: String? = null): JSONObject {
         val conn = URL(url).openConnection() as HttpURLConnection
         try {
             conn.requestMethod = "POST"
@@ -142,6 +142,7 @@ object Remote {
             conn.readTimeout = if (file != null) 120_000 else 20_000
             conn.doOutput = true
             if (ownerToken != null) conn.setRequestProperty("X-Owner-Token", ownerToken)
+            if (deviceId != null) conn.setRequestProperty("X-Device-Id", deviceId)
             if (file != null) {
                 conn.setRequestProperty("Content-Type", "application/octet-stream")
                 conn.setFixedLengthStreamingMode(file.length())
@@ -173,7 +174,7 @@ object Remote {
         for (attempt in 0..1) {
             try {
                 val base = if (attempt == 0) cachedUrl(c).ifEmpty { discover(c) } else discover(c)
-                return http(base + path, body, ownerToken, file)
+                return http(base + path, body, ownerToken, file, if (ownerToken != null) androidId(c) else null)
             } catch (e: Exception) {
                 err = e
             }
@@ -413,7 +414,34 @@ object Remote {
     fun ownerPaired(c: Context): Boolean = sp(c).getString("owner_token", "").orEmpty().isNotEmpty()
 
     fun ownerUnpair(c: Context) {
-        sp(c).edit().remove("owner_token").remove("server_url").apply()
+        sp(c).edit().remove("owner_token").remove("server_url").remove("owner_verified").apply()
+    }
+
+    class Verify(val ok: Boolean, val needActivation: Boolean, val message: String)
+
+    /**
+     * Cek ke server bahwa app owner ini masih diaktivasi di HP ini. Dipanggil setelah sidik jari cocok.
+     * Offline: boleh sampai 12 jam sejak pengecekan sukses terakhir. Jalankan di thread background.
+     */
+    fun ownerVerify(c: Context): Verify {
+        val tok = sp(c).getString("owner_token", "").orEmpty()
+        if (tok.isEmpty()) return Verify(false, true, "")
+        return try {
+            val r = call(c, "/v1/owner/ping", JSONObject(), tok)
+            if (r.optBoolean("ok")) {
+                sp(c).edit().putLong("owner_verified", System.currentTimeMillis()).apply()
+                Verify(true, false, "")
+            } else if (r.optString("error").startsWith("Tidak diizinkan")) {
+                ownerUnpair(c)
+                Verify(false, true, "Aktivasi sudah dicabut atau HP ini bukan HP owner. Aktifkan ulang dengan kode dari bot.")
+            } else {
+                Verify(false, false, r.optString("error", "Gagal memeriksa aktivasi."))
+            }
+        } catch (e: Exception) {
+            val last = sp(c).getLong("owner_verified", 0L)
+            if (last > 0 && System.currentTimeMillis() - last < 12 * 3600 * 1000L) Verify(true, false, "")
+            else Verify(false, false, "Tidak terhubung ke server. Hubungkan internet lalu coba lagi.")
+        }
     }
 
     /** Pasangkan app owner. `text` = teks dari bot (ASSISTANT-PAIR|discovery|kode). Jalankan di thread background. */
@@ -430,9 +458,10 @@ object Remote {
             if (discoveryUrl(c).isEmpty()) return "Tempel seluruh teks dari bot (diawali ASSISTANT-PAIR)."
         }
         return try {
-            val res = call(c, "/v1/owner/pair", JSONObject().put("code", code).put("name", deviceName))
+            val res = call(c, "/v1/owner/pair", JSONObject().put("code", code).put("name", deviceName).put("android_id", androidId(c)))
             if (res.optBoolean("ok")) {
-                sp(c).edit().putString("owner_token", res.getString("token")).apply()
+                sp(c).edit().putString("owner_token", res.getString("token"))
+                    .putLong("owner_verified", System.currentTimeMillis()).apply()
                 null
             } else {
                 res.optString("error", "Pairing gagal.")

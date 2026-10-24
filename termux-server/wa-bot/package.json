@@ -1,0 +1,11 @@
+{
+  "name": "assistant-wa-bot",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Jembatan WhatsApp (Baileys) untuk server Assistant",
+  "dependencies": {
+    "@itsliaaa/baileys": "latest",
+    "pino": "^9.0.0"
+  }
+}

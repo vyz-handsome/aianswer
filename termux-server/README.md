@@ -23,3 +23,11 @@ Database SQLite + API + bot Telegram + tunnel Cloudflare. Auto restart: `run.sh`
 - Tes: `python3 test_apkpatch.py` dan `python3 test_server.py`.
 - Data ada di `data/` (database, keystore, log). Backup folder itu; kalau keystore hilang, app user lama tidak bisa di-update dengan tanda tangan sama.
 - `config.json` dan `data/` rahasia, sudah masuk .gitignore.
+
+## Bot WhatsApp (opsional, v0.27.0)
+
+Jalankan sekali: `bash wa-setup.sh`, lalu restart server. Kode pairing tampil di `tail -f data/wa.log`
+(WhatsApp > Perangkat tertaut > Tautkan dengan nomor telepon). Bot hanya membaca chat ke diri sendiri
+dari nomor di `wa_number`, hanya pesan berawalan `/`. Perintah sama seperti Telegram: kirim `/help`.
+Contoh: `/generate Buku Pintar|-|waktu|2d` lalu teruskan file APK yang dikirim bot.
+Catatan: Baileys adalah library tidak resmi; ada risiko nomor dibatasi WhatsApp.

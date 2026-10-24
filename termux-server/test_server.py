@@ -24,6 +24,7 @@ def main():
     S.BUILD_DIR = os.path.join(tmp, "build")
     S.KEYSTORE = os.path.join(tmp, "k.jks")
     S.KS_PASS_FILE = os.path.join(tmp, "ks.pass")
+    open(S.KS_PASS_FILE, "w").write("rahasia123\n")
     S.CFG = {"port": 18787, "owner_id": 1, "bot_token": "x", "gist_token": "y", "package_prefix": "com.senxuser."}
     sent = []
     S.notify = lambda text, markup=None: sent.append(text)
@@ -51,12 +52,15 @@ def main():
     assert requests.get(base + "/health").json()["ok"]
 
     # pairing
-    bad = post("/v1/owner/pair", {"code": "SALAH123", "name": "hp"})
+    bad = post("/v1/owner/pair", {"code": "SALAH123", "name": "hp", "android_id": "OWNERDEV"})
     assert not bad["ok"]
     code = S.new_pair_code()
-    ok = post("/v1/owner/pair", {"code": code, "name": "hp owner"})
+    ok = post("/v1/owner/pair", {"code": code, "name": "hp owner", "android_id": "OWNERDEV"})
     assert ok["ok"], ok
-    H = {"X-Owner-Token": ok["token"]}
+    H = {"X-Owner-Token": ok["token"], "X-Device-Id": "OWNERDEV"}
+    # token yang sama dari HP lain ditolak
+    assert requests.post(base + "/v1/owner/list", json={}, headers={"X-Owner-Token": ok["token"], "X-Device-Id": "LAIN"}).status_code == 401
+    assert requests.post(base + "/v1/owner/list", json={}, headers={"X-Owner-Token": ok["token"]}).status_code == 401
     assert not post("/v1/owner/pair", {"code": code, "name": "x"})["ok"], "kode pairing sekali pakai"
     assert requests.post(base + "/v1/owner/list", json={}, headers={"X-Owner-Token": "salah"}).status_code == 401
 

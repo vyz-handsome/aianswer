@@ -143,7 +143,7 @@ class MainActivity : AppCompatActivity() {
         // Gerbang adalah overlay; setelah terbuka ia memudar dan menampilkan menu app yang asli.
         Remote.start(this)
         if (Remote.isOwner(this)) {
-            showOwnerGate()
+            startOwnerFlow()
         } else if (!Remote.allowed(this)) {
             showUserGate(null)
         }
@@ -169,15 +169,28 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private var activationGate: ActivationGate? = null
+
+    /** App owner: belum diaktivasi = layar aktivasi (kode dari bot); sudah = sidik jari + cek server. */
+    private fun startOwnerFlow(notice: String? = null) {
+        if (!Remote.ownerPaired(this)) showActivation(notice) else showOwnerGate()
+    }
+
+    private fun showActivation(notice: String?) {
+        if (activationGate?.isShowing() == true) return
+        activationGate = ActivationGate(this, notice) { showOwnerGate() }.also { it.show() }
+    }
+
     private fun showOwnerGate() {
-        if (ownerGate?.isShowing() == true) return
-        ownerGate = FingerprintGate(this).also { it.show() }
+        if (ownerGate?.isShowing() == true || activationGate?.isShowing() == true) return
+        ownerGate = FingerprintGate(this, verifyOwner = true, onNeedActivation = { msg -> showActivation(msg) })
+            .also { it.show() }
     }
 
     override fun onStart() {
         super.onStart()
         if (Remote.isOwner(this)) {
-            if (stoppedAt != 0L && android.os.SystemClock.elapsedRealtime() - stoppedAt > 60_000L) showOwnerGate()
+            if (stoppedAt != 0L && android.os.SystemClock.elapsedRealtime() - stoppedAt > 60_000L) startOwnerFlow()
         } else {
             Remote.lockListener = { msg -> runOnUiThread { if (!isDestroyed) showUserGate(msg) } }
             if (!Remote.allowed(this)) showUserGate(null)
@@ -411,7 +424,7 @@ class MainActivity : AppCompatActivity() {
                     .hideSoftInputFromWindow(focused.windowToken, 0)
             }
             if (Remote.isOwner(this)) {
-                showOwnerGate()
+                startOwnerFlow()
             } else {
                 Remote.onUserAction(this, "logout")
                 OverlayService.instance?.stopBubble()
